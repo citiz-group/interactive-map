@@ -21,7 +21,7 @@
     const map = L.map('map').setView([46.227638, 2.213749], 5);
   
     const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
+      attribution: '&copy; <a href="https://immocitiz.fr/" target="_top">Immocitiz</a>',
       maxZoom: 99
     }).addTo(map);
   
@@ -72,7 +72,7 @@
               collection += 'all';
               break;
           }
-          collection += '">Voir plus</a>';
+          collection += '" target="_top">Voir plus</a>';
           L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
               title: name
           }).addTo(map)
