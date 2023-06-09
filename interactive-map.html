@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html dir="ltr"
+      lang="en">
+
+<head>
+  <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        rel="stylesheet"/>
+  <meta charset="utf-8">
+  <script integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+  <div id="map" style="width: 600px; height: 400px;"></div>
+  <script>
+    const map = L.map('map').setView([46.227638, 2.213749], 5);
+  
+    const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
+      maxZoom: 99
+    }).addTo(map);
+  
+    fetch('https://hook.eu1.make.com/2fch5v4swraen6yc9wuzc7g8inp9few6')
+      .then(response => response.json())
+      .then(response => {
+        let regionCount = {};
+        response.forEach(product => {
+          if (regionCount[product.produit.region] === undefined) {
+            regionCount[product.produit.region] = 0;
+          }
+          regionCount[product.produit.region] += 1;
+        });
+        Object.entries(regionCount).forEach(region => {
+          markAddress(region[0], region[1])
+        });
+      });
+
+    const markAddress = (address, description) => {
+      fetch('https://hook.eu1.make.com/tngrla4gctib9pa4uq4m5j2n0njbb1yu?address=' + encodeURI(address))
+        .then(response => response.json())
+        .then(response => {
+          console.log(response);
+          L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
+              title: address
+          }).addTo(map)
+            .bindPopup(
+              '<b>' + address + '</b><br>' +
+              description + ' opportunité(s)'
+            );
+        });
+    }
+  </script>
+</body>
+
+</html>
