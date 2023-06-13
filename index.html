@@ -17,8 +17,8 @@
           src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
-<body style="height: 100%; margin: 0; width: 100%;">
-  <div id="map" style="height: 100%; width: 100%;"></div>
+<body style="display: flex; height: 100%; margin: 0; width: 100%;">
+  <div id="map" style="height: 100%; width: 62.5%;"></div>
   <form style="align-items: center;
               background-clip: padding-box;
               background-color: white;
@@ -31,13 +31,18 @@
               top: 10px;
               z-index: 999;">
     <span>Filtrer par&nbsp;</span>
-    <input checked id="region" name="filter" onclick="load(REGION_MARKERS);" type="radio">
+    <input checked id="region" name="filter" onclick="loadMarkers(REGION_MARKERS);" type="radio">
     <label for="region">&nbsp;région&nbsp;</label>
-    <input id="address" name="filter" onclick="load(ADDRESS_MARKERS);" type="radio">
+    <input id="address" name="filter" onclick="loadMarkers(ADDRESS_MARKERS);" type="radio">
     <label for="address">&nbsp;adresse</label>
   </form>
+  <div style="display: flex; flex-direction: column; width: 37.5%;">
+    <h1 style="border-bottom: 1px solid rgba(0, 0, 0, .2); margin: 0; padding: 10px;">Nos opportunités</h1>
+    <div id="list" style="overflow: auto;"></div>
+  </div>
 
   <script>
+    let temp = 0;
     const MAP = L.map('map').setView([46.227638, 2.213749], 5);
   
     const TILES = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -47,6 +52,8 @@
 
     const REGION_MARKERS = L.layerGroup();
     const ADDRESS_MARKERS = L.layerGroup();
+
+    const ADDRESS_LIST = [];
   
     fetch('https://hook.eu1.make.com/2fch5v4swraen6yc9wuzc7g8inp9few6')
       .then(response => response.json())
@@ -57,15 +64,16 @@
             regionCount[product.produit.region] = 0;
           }
           regionCount[product.produit.region] += 1;
-          markAddress(product);
+          loadAddress(product);
         });
         Object.entries(regionCount).forEach(region => {
-          markRegion(region[0], region[1])
+          loadRegion(region[0], region[1])
         });
-        load(REGION_MARKERS);
+        loadMarkers(REGION_MARKERS);
+        loadList(ADDRESS_LIST);
       });
 
-    const markRegion = (name, description) => {
+    const loadRegion = (name, description) => {
       fetch('https://hook.eu1.make.com/tngrla4gctib9pa4uq4m5j2n0njbb1yu?address=' + encodeURI(name))
         .then(response => response.json())
         .then(response => {
@@ -109,65 +117,105 @@
         });
     }
 
-    const markAddress = product => {
+    const loadAddress = product => {
       fetch('https://hook.eu1.make.com/tngrla4gctib9pa4uq4m5j2n0njbb1yu?address=' + encodeURI(product.produit.address))
         .then(response => response.json())
         .then(response => {
+          const carousel = i => {
+            return '<div id="carouselExampleIndicators' + i + '" class="carousel slide">' +
+              '<div class="carousel-indicators">' +
+                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>' +
+                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="1" aria-label="Slide 2"></button>' +
+                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="2" aria-label="Slide 3"></button>' +
+                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="3" aria-label="Slide 4"></button>' +
+                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="4" aria-label="Slide 5"></button>' +
+                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="5" aria-label="Slide 6"></button>' +
+              '</div>' +
+              '<div class="carousel-inner">' +
+                '<div class="carousel-item active">' +
+                  '<img src="' + product.produit.visual1 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+                '</div>' +
+                '<div class="carousel-item">' +
+                  '<img src="' + product.produit.visual2 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+                '</div>' +
+                '<div class="carousel-item">' +
+                  '<img src="' + product.produit.visual3 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+                '</div>' +
+                '<div class="carousel-item">' +
+                  '<img src="' + product.produit.visual4 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+                '</div>' +
+                '<div class="carousel-item">' +
+                  '<img src="' + product.produit.visual5 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+                '</div>' +
+                '<div class="carousel-item">' +
+                  '<img src="' + product.produit.visual6 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+                '</div>' +
+              '</div>' +
+              '<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide="prev">' +
+                '<span class="carousel-control-prev-icon" aria-hidden="true"></span>' +
+                '<span class="visually-hidden">Previous</span>' +
+              '</button>' +
+              '<button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide="next">' +
+                '<span class="carousel-control-next-icon" aria-hidden="true"></span>' +
+                '<span class="visually-hidden">Next</span>' +
+              '</button>' +
+            '</div>';
+          }
           L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
               title: product.produit.address
           }).addTo(ADDRESS_MARKERS)
             .bindPopup(
               '<b>' + product.produit.address + '</b><br><br>' +
-              '<span>Investissement total : <b>' + product.produit.totalInvestment + ' €</b></span><br>' +
-              '<span>Rentabilité brute : <b>' + product.produit.profitability + ' %</b></span><br><br>' +
-              '<div id="carouselExampleIndicators" class="carousel slide">' +
-                '<div class="carousel-indicators">' +
-                  '<button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>' +
-                  '<button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>' +
-                  '<button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>' +
-                  '<button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3" aria-label="Slide 4"></button>' +
-                  '<button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4" aria-label="Slide 5"></button>' +
-                  '<button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="5" aria-label="Slide 6"></button>' +
-                '</div>' +
-                '<div class="carousel-inner">' +
-                  '<div class="carousel-item active">' +
-                    '<img src="' + product.produit.visual1 + '?profile=visuel1" class="d-block w-100" alt="..." style="border: 2px solid rgba(0, 0, 0, .2); border-radius: 16px;">' +
-                  '</div>' +
-                  '<div class="carousel-item">' +
-                    '<img src="' + product.produit.visual2 + '?profile=visuel1" class="d-block w-100" alt="..." style="border: 2px solid rgba(0, 0, 0, .2); border-radius: 16px;">' +
-                  '</div>' +
-                  '<div class="carousel-item">' +
-                    '<img src="' + product.produit.visual3 + '?profile=visuel1" class="d-block w-100" alt="..." style="border: 2px solid rgba(0, 0, 0, .2); border-radius: 16px;">' +
-                  '</div>' +
-                  '<div class="carousel-item">' +
-                    '<img src="' + product.produit.visual4 + '?profile=visuel1" class="d-block w-100" alt="..." style="border: 2px solid rgba(0, 0, 0, .2); border-radius: 16px;">' +
-                  '</div>' +
-                  '<div class="carousel-item">' +
-                    '<img src="' + product.produit.visual5 + '?profile=visuel1" class="d-block w-100" alt="..." style="border: 2px solid rgba(0, 0, 0, .2); border-radius: 16px;">' +
-                  '</div>' +
-                  '<div class="carousel-item">' +
-                    '<img src="' + product.produit.visual6 + '?profile=visuel1" class="d-block w-100" alt="..." style="border: 2px solid rgba(0, 0, 0, .2); border-radius: 16px;">' +
-                  '</div>' +
-                '</div>' +
-                '<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">' +
-                  '<span class="carousel-control-prev-icon" aria-hidden="true"></span>' +
-                  '<span class="visually-hidden">Previous</span>' +
-                '</button>' +
-                '<button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">' +
-                  '<span class="carousel-control-next-icon" aria-hidden="true"></span>' +
-                  '<span class="visually-hidden">Next</span>' +
-                '</button>' +
-              '</div><br>' +
-              '<a href="#">En savoir plus</a>'
+              '<span style="display: flex; justify-content: space-between;">' +
+                '<span>Investissement total :</span>' +
+                '<b>' + product.produit.totalInvestment + ' €</b>' +
+              '</span>' +
+              '<span style="display: flex; justify-content: space-between;">' +
+                '<span>Rentabilité brute :</span>' +
+                '<b>' + product.produit.profitability + ' %</b>' +
+              '</span>' +
+              carousel(temp) + '<br>' +
+              '<a href="' + product.produit.store + '" target="_top">En savoir plus</a>'
             );
+          temp++;
+          ADDRESS_LIST.push({
+            totalInvestment: product.produit.totalInvestment,
+            profitability: product.produit.profitability,
+            card:
+              '<div style="align-items: center; background-color: white; border: 1px solid rgba(0, 0, 0, .2); border-radius: 0 16px 16px 0; center; display: flex; margin: 10px;">' +
+                '<div style="height: 100%; margin: 0 10px 0 0; max-width: 37.5%;">' + carousel(temp) + '</div>' +
+                '<div style="margin: 10px; width: 62.5%;">' +
+                  '<span>' + product.produit.address + '</span><br><br>' +
+                  '<span style="display: flex; justify-content: space-between;">' +
+                    '<span>Investissement total :</span>' +
+                    '<b>' + product.produit.totalInvestment + ' €</b>' +
+                  '</span>' +
+                  '<span style="display: flex; justify-content: space-between;">' +
+                    '<span>Rentabilité brute :</span>' +
+                    '<b>' + product.produit.profitability + ' %</b>' +
+                  '</span>' +
+                  '<a href="' + product.produit.store + '" target="_top">En savoir plus</a>' +
+                '</div>' +
+              '</div>'
+          });
+          temp++;
+          loadList(ADDRESS_LIST);
         });
-    }
+    };
 
-    const load = markers => {
+    const loadMarkers = markers => {
       MAP.removeLayer(REGION_MARKERS);
       MAP.removeLayer(ADDRESS_MARKERS);
       MAP.addLayer(markers);
-    }
+    };
+    
+    const loadList = (list, sortOption) => {
+      let cards = '';
+      list.forEach(address => {
+        cards += address.card;
+      });
+      document.getElementById('list').innerHTML = cards;
+    };
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
