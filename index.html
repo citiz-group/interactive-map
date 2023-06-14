@@ -9,15 +9,22 @@
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
         rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap"
+        rel="stylesheet">
+  <link href="https://fonts.googleapis.com"
+        rel="preconnect">
+  <link crossorigin
+        href="https://fonts.gstatic.com"
+        rel="preconnect">
   <meta charset="utf-8">
   <script crossorigin=""
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
           src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
-<body style="display: flex; height: 100%; margin: 0; width: 100%;">
+<body style="font-family: 'Inter', sans-serif; display: flex; height: 100%; margin: 0; width: 100%;">
   <div id="map" style="height: 100%; width: 62.5%;"></div>
   <form style="align-items: center;
               background-clip: padding-box;
@@ -31,18 +38,27 @@
               top: 10px;
               z-index: 999;">
     <span>Filtrer par&nbsp;</span>
-    <input checked id="region" name="filter" onclick="loadMarkers(REGION_MARKERS);" type="radio">
+    <input checked id="region" name="filter" onclick="loadMarkers(REGION_MARKERS, 'region');" type="radio">
     <label for="region">&nbsp;région&nbsp;</label>
-    <input id="address" name="filter" onclick="loadMarkers(ADDRESS_MARKERS);" type="radio">
+    <input id="address" name="filter" onclick="loadMarkers(ADDRESS_MARKERS, 'address');" type="radio">
     <label for="address">&nbsp;adresse</label>
   </form>
   <div style="display: flex; flex-direction: column; width: 37.5%;">
-    <h1 style="border-bottom: 1px solid rgba(0, 0, 0, .2); margin: 0; padding: 10px;">Nos opportunités</h1>
+    <div style="border-bottom: 1px solid rgba(0, 0, 0, .2); margin: 0; padding: 10px;">
+      <span id="counter">0</span>
+      <span>opportunités</span><br><br>
+      <span>Trier par&nbsp;</span>
+      <select id="sort" onchange="loadList();"">
+        <option value="totalInvestmentDescending">Investissement total&sup1; (décroissant)</option>
+        <option value="totalInvestmentAscending">Investissement total&sup1; (croissant)</option>
+        <option value="profitabilityDescending">Rentabilité brute&sup2; (décroissante)</option>
+        <option value="profitabilityAscending">Rentabilité brute&sup2; (croissante)</option>
+      </select>
+    </div>
     <div id="list" style="overflow: auto;"></div>
   </div>
 
   <script>
-    let temp = 0;
     const MAP = L.map('map').setView([46.227638, 2.213749], 5);
   
     const TILES = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -53,28 +69,31 @@
     const REGION_MARKERS = L.layerGroup();
     const ADDRESS_MARKERS = L.layerGroup();
 
+    const MARKER_LIST = [];
     const ADDRESS_LIST = [];
+
+    let carouselIndex = 1;
   
-    fetch('https://hook.eu1.make.com/2fch5v4swraen6yc9wuzc7g8inp9few6')
+    fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts')
       .then(response => response.json())
       .then(response => {
         let regionCount = {};
-        response.forEach(product => {
-          if (regionCount[product.produit.region] === undefined) {
-            regionCount[product.produit.region] = 0;
+        response.data.forEach(product => {
+          if (regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] === undefined) {
+            regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] = 0;
           }
-          regionCount[product.produit.region] += 1;
+          regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] += 1;
           loadAddress(product);
         });
         Object.entries(regionCount).forEach(region => {
           loadRegion(region[0], region[1])
         });
-        loadMarkers(REGION_MARKERS);
-        loadList(ADDRESS_LIST);
+        loadMarkers(REGION_MARKERS, 'region');
+        loadList();
       });
 
     const loadRegion = (name, description) => {
-      fetch('https://hook.eu1.make.com/tngrla4gctib9pa4uq4m5j2n0njbb1yu?address=' + encodeURI(name))
+      fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(name))
         .then(response => response.json())
         .then(response => {
           let collection = '<a href="https://immocitiz.store/collections/';
@@ -113,12 +132,25 @@
               '<b>' + name + '</b><br>' +
               description + ' opportunité(s)<br>' +
               collection
-            );
+            ).on('click', marker => {
+              setView(marker, 7.5);
+            });
         });
     }
 
     const loadAddress = product => {
-      fetch('https://hook.eu1.make.com/tngrla4gctib9pa4uq4m5j2n0njbb1yu?address=' + encodeURI(product.produit.address))
+      const ADDRESS =
+        product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] +
+        ' ' +
+        product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() +
+        ' (' +
+        product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] +
+        ')'
+      const PROFITABILITY = product['a2d1486abfd1f662fb387a34b0c590f4fd517ab8'].toFixed(2);
+      const STORE = product['3a76ea85df1fa8b1d1885af9a1c72c9699b7dca4'];
+      const TOTAL_INVESTMENT = product['6a494ae5c460f7cb49a521620bc0359fb3018c5f'].toFixed();
+
+      fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(ADDRESS))
         .then(response => response.json())
         .then(response => {
           const carousel = i => {
@@ -131,24 +163,24 @@
                 '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="4" aria-label="Slide 5"></button>' +
                 '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="5" aria-label="Slide 6"></button>' +
               '</div>' +
-              '<div class="carousel-inner">' +
-                '<div class="carousel-item active">' +
-                  '<img src="' + product.produit.visual1 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+              '<div class="carousel-inner h-100">' +
+                '<div class="carousel-item h-100 active">' +
+                  '<img src="' + product['9bfb960a08f96d955136571b244c555d007cf46b'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
                 '</div>' +
-                '<div class="carousel-item">' +
-                  '<img src="' + product.produit.visual2 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+                '<div class="carousel-item h-100">' +
+                  '<img src="' + product['7ffff78b28d3373fb4fca0d8b9a3b7a3c068587b'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
                 '</div>' +
-                '<div class="carousel-item">' +
-                  '<img src="' + product.produit.visual3 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+                '<div class="carousel-item h-100">' +
+                  '<img src="' + product['a724765a4be4748b733c1d1b3ff3776619100eb9'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
                 '</div>' +
-                '<div class="carousel-item">' +
-                  '<img src="' + product.produit.visual4 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+                '<div class="carousel-item h-100">' +
+                  '<img src="' + product['ac1b837baad62b4f520901ce5d61ac3d9bc5f583'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
                 '</div>' +
-                '<div class="carousel-item">' +
-                  '<img src="' + product.produit.visual5 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+                '<div class="carousel-item h-100">' +
+                  '<img src="' + product['4af197f76ca4d64a5c87a08244f483d5af6708b9'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
                 '</div>' +
-                '<div class="carousel-item">' +
-                  '<img src="' + product.produit.visual6 + '?profile=visuel1" class="d-block w-100" alt="...">' +
+                '<div class="carousel-item h-100">' +
+                  '<img src="' + product['8d2b9a917d094f7a62681cc8cfa18f1bff1eef52'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
                 '</div>' +
               '</div>' +
               '<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide="prev">' +
@@ -161,64 +193,104 @@
               '</button>' +
             '</div>';
           }
-          L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
-              title: product.produit.address
+          const MARKER = L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
+              title: ADDRESS
           }).addTo(ADDRESS_MARKERS)
             .bindPopup(
-              '<b>' + product.produit.address + '</b><br><br>' +
+              '<b>' + ADDRESS + '</b><br><br>' +
               '<span style="display: flex; justify-content: space-between;">' +
                 '<span>Investissement total :</span>' +
-                '<b>' + product.produit.totalInvestment + ' €</b>' +
+                '<b>' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>' +
               '</span>' +
               '<span style="display: flex; justify-content: space-between;">' +
                 '<span>Rentabilité brute :</span>' +
-                '<b>' + product.produit.profitability + ' %</b>' +
-              '</span>' +
-              carousel(temp) + '<br>' +
-              '<a href="' + product.produit.store + '" target="_top">En savoir plus</a>'
-            );
-          temp++;
+                '<b>' + PROFITABILITY.toString().replace('.', ',') + ' %</b>' +
+              '</span><br>' +
+              carousel(carouselIndex) + '<br>' +
+              '<a href="' + STORE + '" target="_top">En savoir plus</a>'
+            ).on('click', marker => {
+              setView(marker, 10);
+            });
+          carouselIndex++;
+          MARKER_LIST.push(MARKER);
           ADDRESS_LIST.push({
-            totalInvestment: product.produit.totalInvestment,
-            profitability: product.produit.profitability,
             card:
-              '<div style="align-items: center; background-color: white; border: 1px solid rgba(0, 0, 0, .2); border-radius: 0 16px 16px 0; center; display: flex; margin: 10px;">' +
-                '<div style="height: 100%; margin: 0 10px 0 0; max-width: 37.5%;">' + carousel(temp) + '</div>' +
-                '<div style="margin: 10px; width: 62.5%;">' +
-                  '<span>' + product.produit.address + '</span><br><br>' +
+              '<div onmouseleave="this.style.backgroundColor = \'#fff\';" onmouseover="this.style.backgroundColor = \'#eee\';" style="background-color: #fff; border: 1px solid rgba(0, 0, 0, .2); border-radius: 0 16px 16px 0; center; display: flex; cursor: pointer; margin: 10px;">' +
+                '<div style="display: flex; justify-content: center; max-width: 37.5%;">' + carousel(carouselIndex) + '</div>' +
+                '<div ' +
+                  'onclick="loadMarkers(ADDRESS_MARKERS, \'address\'); setView(MARKER_LIST[' + (carouselIndex / 2 - 1) + '], 15);" ' +
+                  'style="display: flex; flex-direction: column; justify-content: center; padding: 10px; width: 62.5%;">' +
+                  '<span>' + ADDRESS + '</span><br>' +
                   '<span style="display: flex; justify-content: space-between;">' +
-                    '<span>Investissement total :</span>' +
-                    '<b>' + product.produit.totalInvestment + ' €</b>' +
-                  '</span>' +
-                  '<span style="display: flex; justify-content: space-between;">' +
-                    '<span>Rentabilité brute :</span>' +
-                    '<b>' + product.produit.profitability + ' %</b>' +
-                  '</span>' +
-                  '<a href="' + product.produit.store + '" target="_top">En savoir plus</a>' +
+                    '<span style="align-items: center; display: flex;">' +
+                      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, .2)" class="bi bi-cash" viewBox="0 0 16 16">' +
+                        '<path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>' +
+                        '<path d="M0 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V6a2 2 0 0 1-2-2H3z"/>' +
+                      '</svg>' +
+                      '<b>&nbsp;&nbsp;' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b><sup>1</sup>' +
+                    '</span>' +
+                    '<span style="align-items: center; display: flex;">' +
+                      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, .2)" class="bi bi-graph-up-arrow" viewBox="0 0 16 16">' +
+                        '<path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z"/>' +
+                      '</svg>' +
+                      '<b>&nbsp;&nbsp;' + PROFITABILITY.toString().replace('.', ',') + ' %</b><sup>2</sup>' +
+                    '</span>' +
+                  '</span><br>' +
+                  '<a href="' + STORE + '" target="_top">En savoir plus</a>' +
                 '</div>' +
-              '</div>'
+              '</div>',
+            profitability: PROFITABILITY,
+            totalInvestment: TOTAL_INVESTMENT
           });
-          temp++;
-          loadList(ADDRESS_LIST);
+          carouselIndex++;
+          loadList();
         });
     };
 
-    const loadMarkers = markers => {
+    const loadMarkers = (markers, id) => {
       MAP.removeLayer(REGION_MARKERS);
       MAP.removeLayer(ADDRESS_MARKERS);
       MAP.addLayer(markers);
+      document.getElementById(id).checked = true;
     };
-    
-    const loadList = (list, sortOption) => {
+
+    const loadList = _ => {
+      let sortedList = [];
+
+      switch (document.getElementById('sort').value) {
+        case 'totalInvestmentDescending':
+          sortedList = ADDRESS_LIST.sort((a, b) => b.totalInvestment - a.totalInvestment);
+          break;
+        case 'totalInvestmentAscending':
+          sortedList = ADDRESS_LIST.sort((a, b) => a.totalInvestment - b.totalInvestment);
+          break;
+        case 'profitabilityDescending':
+          sortedList = ADDRESS_LIST.sort((a, b) => b.profitability - a.profitability);
+          break;
+        case 'profitabilityAscending':
+          sortedList = ADDRESS_LIST.sort((a, b) => a.profitability - b.profitability);
+          break;
+      }
       let cards = '';
-      list.forEach(address => {
+      sortedList.forEach(address => {
         cards += address.card;
       });
+      document.getElementById('counter').innerHTML = ADDRESS_LIST.length;
       document.getElementById('list').innerHTML = cards;
     };
+
+    const setView = (marker, zoom) => {
+      const LATLNG = marker.latlng ? marker.latlng : marker._latlng;
+      if (MAP.getZoom() < zoom) {
+        MAP.setView(LATLNG, zoom);
+      } else {
+        MAP.setView(LATLNG, MAP.getZoom());
+      }
+      marker.openPopup();
+    }
   </script>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 
