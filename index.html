@@ -49,10 +49,10 @@
       <span>opportunités</span><br><br>
       <span>Trier par&nbsp;</span>
       <select id="sort" onchange="loadList();"">
-        <option value="totalInvestmentDescending">Investissement total&sup1; (décroissant)</option>
-        <option value="totalInvestmentAscending">Investissement total&sup1; (croissant)</option>
-        <option value="profitabilityDescending">Rentabilité brute&sup2; (décroissante)</option>
-        <option value="profitabilityAscending">Rentabilité brute&sup2; (croissante)</option>
+        <option value="totalInvestmentDescending">Budget global (décroissant) &sup1;</option>
+        <option value="totalInvestmentAscending">Budget global (croissant) &sup1;</option>
+        <option value="profitabilityDescending">Rentabilité (décroissante) &sup2;</option>
+        <option value="profitabilityAscending">Rentabilité (croissante) &sup2;</option>
       </select>
     </div>
     <div id="list" style="overflow: auto;"></div>
@@ -199,11 +199,11 @@
             .bindPopup(
               '<b>' + ADDRESS + '</b><br><br>' +
               '<span style="display: flex; justify-content: space-between;">' +
-                '<span>Investissement total :</span>' +
+                '<span>Budget global :</span>' +
                 '<b>' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>' +
               '</span>' +
               '<span style="display: flex; justify-content: space-between;">' +
-                '<span>Rentabilité brute :</span>' +
+                '<span>Rentabilité :</span>' +
                 '<b>' + PROFITABILITY.toString().replace('.', ',') + ' %</b>' +
               '</span><br>' +
               carousel(carouselIndex) + '<br>' +
@@ -219,23 +219,25 @@
                 '<div style="display: flex; justify-content: center; max-width: 37.5%;">' + carousel(carouselIndex) + '</div>' +
                 '<div ' +
                   'onclick="loadMarkers(ADDRESS_MARKERS, \'address\'); setView(MARKER_LIST[' + (carouselIndex / 2 - 1) + '], 15);" ' +
-                  'style="display: flex; flex-direction: column; justify-content: center; padding: 10px; width: 62.5%;">' +
-                  '<span>' + ADDRESS + '</span><br>' +
-                  '<span style="display: flex; justify-content: space-between;">' +
-                    '<span style="align-items: center; display: flex;">' +
-                      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, .2)" class="bi bi-cash" viewBox="0 0 16 16">' +
-                        '<path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>' +
-                        '<path d="M0 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V6a2 2 0 0 1-2-2H3z"/>' +
-                      '</svg>' +
-                      '<b>&nbsp;&nbsp;' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b><sup>1</sup>' +
+                  'style="display: flex; flex-direction: column; justify-content: space-between; padding: 10px; width: 62.5%;">' +
+                  '<span>' + ADDRESS + '</span>' +
+                  '<div>' +
+                    '<span style="display: flex; justify-content: space-between;">' +
+                      '<span style="align-items: center; display: flex;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, .2)" class="bi bi-cash" viewBox="0 0 16 16">' +
+                          '<path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>' +
+                          '<path d="M0 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V6a2 2 0 0 1-2-2H3z"/>' +
+                        '</svg>' +
+                        '<b>&nbsp;&nbsp;' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>&nbsp;&sup1;' +
+                      '</span>' +
+                      '<span style="align-items: center; display: flex;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, .2)" class="bi bi-graph-up-arrow" viewBox="0 0 16 16">' +
+                          '<path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z"/>' +
+                        '</svg>' +
+                        '<b>&nbsp;&nbsp;' + PROFITABILITY.toString().replace('.', ',') + ' %</b>&nbsp;&sup2;' +
+                      '</span>' +
                     '</span>' +
-                    '<span style="align-items: center; display: flex;">' +
-                      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, .2)" class="bi bi-graph-up-arrow" viewBox="0 0 16 16">' +
-                        '<path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z"/>' +
-                      '</svg>' +
-                      '<b>&nbsp;&nbsp;' + PROFITABILITY.toString().replace('.', ',') + ' %</b><sup>2</sup>' +
-                    '</span>' +
-                  '</span><br>' +
+                  '</div>' +
                   '<a href="' + STORE + '" target="_top">En savoir plus</a>' +
                 '</div>' +
               '</div>',
