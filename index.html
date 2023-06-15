@@ -50,7 +50,7 @@
         <div style="display: flex; justify-content: space-between;">
           <div>
             <span>Région(s) :&nbsp;</span>
-            <select id="regionSelect" onchange="loadList(); setView()">
+            <select id="regionSelect" onchange="loadList(); setView(REGION_MARKER_LIST.find(marker => marker.options.title === this.value), 7.5);">
               <option value="Toutes">Toutes (0)</option>
             </select>
           </div>
@@ -70,7 +70,7 @@
 
   <script>
     const MAP = L.map('map').setView([46.227638, 2.213749], 6);
-  
+
     const TILES = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://immocitiz.fr/" target="_top">Immocitiz</a>',
       maxZoom: 99
@@ -84,7 +84,7 @@
     const ADDRESS_LIST = [];
 
     let carouselIndex = 1;
-  
+
     fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts')
       .then(response => response.json())
       .then(response => {
@@ -334,7 +334,6 @@
 
       document.getElementById('counter').innerHTML = sortedList.length;
       document.getElementById('regionSelect').innerHTML = '<option value="Toutes">Toutes (' + sortedList.length + ')</option>';
-      console.log(regions);
       Object.keys(regions).sort().forEach(region => {
         document.getElementById('regionSelect').innerHTML += '<option value="' + region + '">' + region + ' (' + regions[region] + ')</option>';
       });
@@ -350,7 +349,7 @@
       } else {
         MAP.setView(LATLNG, MAP.getZoom());
       }
-      
+
       marker.openPopup();
     }
   </script>
