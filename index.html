@@ -50,7 +50,7 @@
         <div style="display: flex; justify-content: space-between;">
           <div>
             <span>Région(s) :&nbsp;</span>
-            <select id="regionSelect" onchange="loadList(); setView(REGION_MARKER_LIST.find(marker => marker.options.title === this.value), 7.5);">
+            <select id="regionSelect" onchange="loadList(); loadMarkers(REGION_MARKERS, 'region'); setView(REGION_MARKER_LIST.find(marker => marker.options.title === this.value), 7.5);">
               <option value="Toutes">Toutes (0)</option>
             </select>
           </div>
@@ -144,7 +144,7 @@
               description + ' opportunité(s)<br>' +
               collection
             ).on('click', marker => {
-              setView(marker, 7.5);
+              setView(marker);
             });
           REGION_MARKER_LIST.push(MARKER);
         });
@@ -240,7 +240,7 @@
               carousel(carouselIndex) + '<br>' +
               '<a href="' + STORE + '" target="_top">En savoir plus</a>'
             ).on('click', marker => {
-              setView(marker, 10);
+              setView(marker);
             });
           carouselIndex++;
           ADDRESS_MARKER_LIST.push(MARKER);
@@ -343,13 +343,24 @@
 
     const setView = (marker, zoom) => {
       const LATLNG = marker.latlng ? marker.latlng : marker._latlng;
+      const MARKER_ZOOM =
+        ['Auvergne-Rhône-Alpes',
+         'Bourgogne-Franche-Comté',
+         'Bretagne',
+         'Centre-Val de Loire',
+         'Corse',
+         'Grand Est',
+         'Grand Ouest',
+         'Hauts-de-France',
+         'Île-de-France',
+         'Normandie',
+         'Nouvelle-Aquitaine',
+         'Occitanie',
+         'Pays de la Loire',
+         'Provence-Alpes-Côte d\'Azur'].indexOf(marker.sourceTarget?.options.title) > -1 ? 7.5 : 15 ;
+      const ZOOM = zoom ? zoom : MAP.getZoom() > MARKER_ZOOM ? MAP.getZoom() : MARKER_ZOOM;
 
-      if (MAP.getZoom() < zoom) {
-        MAP.setView(LATLNG, zoom);
-      } else {
-        MAP.setView(LATLNG, MAP.getZoom());
-      }
-
+      MAP.setView(LATLNG, ZOOM);
       marker.openPopup();
     }
   </script>
