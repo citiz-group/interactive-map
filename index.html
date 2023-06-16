@@ -69,6 +69,9 @@
   </div>
 
   <script>
+
+    /* INITIALIZATIONS */
+
     const MAP = L.map('map', {
       center: [46.227638, 2.213749],
       maxBoundsViscosity: 1,
@@ -91,70 +94,77 @@
     let carouselIndex = 1;
 
     MAP.setMaxBounds(MAP.getBounds());
+
+    /* MAIN */
+
     fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts')
       .then(response => response.json())
       .then(response => {
         let regionCount = {};
+
         response.data.forEach(product => {
           if (regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] === undefined) {
             regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] = 0;
           }
-          regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] += 1;
+          regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']]++;
           loadAddress(product);
         });
+
         Object.entries(regionCount).forEach(region => {
-          loadRegion(region[0], region[1])
+          fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(region[0]))
+            .then(response => response.json())
+            .then(response => {
+              let collection = '<a href="https://immocitiz.store/collections/';
+
+              switch (region[0]) {
+                case 'Auvergne-Rhône-Alpes':
+                case 'Bourgogne-Franche-Comté':
+                case 'Grand Est':
+                  collection += 'grand-est';
+                  break;
+                case 'Bretagne':
+                case 'Centre-Val de Loire':
+                case 'Normandie':
+                case 'Nouvelle-Aquitaine':
+                case 'Pays de la Loire':
+                  collection += 'grand-ouest';
+                  break;
+                case 'Hauts-de-France':
+                  collection += 'hauts-de-france';
+                  break;
+                case 'Occitanie':
+                case 'Provence-Alpes-Côte d\'Azur':
+                  collection += 'sud';
+                  break;
+                case 'Île-de-France':
+                  collection += 'ile-de-france';
+                  break;
+                default:
+                  collection += 'all';
+                  break;
+              }
+
+              collection += '" target="_top">En savoir plus</a>';
+
+              const MARKER =
+                L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], { title: region[0] })
+                  .addTo(REGION_MARKERS)
+                  .bindPopup(
+                    '<b>' + region[0] + '</b><br>' +
+                    region[1] + ' opportunité(s)<br>' +
+                    collection
+                  )
+                  .on('click', marker => setView(marker));
+
+              REGION_MARKER_LIST.push(MARKER);
+            });
         });
+
         loadMarkers(REGION_MARKERS, 'region');
         loadList();
       });
 
-    const loadRegion = (name, description) => {
-      fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(name))
-        .then(response => response.json())
-        .then(response => {
-          let collection = '<a href="https://immocitiz.store/collections/';
-          switch (name) {
-            case 'Auvergne-Rhône-Alpes':
-            case 'Bourgogne-Franche-Comté':
-            case 'Grand Est':
-              collection += 'grand-est';
-              break;
-            case 'Bretagne':
-            case 'Centre-Val de Loire':
-            case 'Normandie':
-            case 'Nouvelle-Aquitaine':
-            case 'Pays de la Loire':
-              collection += 'grand-ouest';
-              break;
-            case 'Hauts-de-France':
-              collection += 'hauts-de-france';
-              break;
-            case 'Occitanie':
-            case 'Provence-Alpes-Côte d\'Azur':
-              collection += 'sud';
-              break;
-            case 'Île-de-France':
-              collection += 'ile-de-france';
-              break;
-            default:
-              collection += 'all';
-              break;
-          }
-          collection += '" target="_top">En savoir plus</a>';
-          const MARKER = L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
-              title: name
-          }).addTo(REGION_MARKERS)
-            .bindPopup(
-              '<b>' + name + '</b><br>' +
-              description + ' opportunité(s)<br>' +
-              collection
-            ).on('click', marker => {
-              setView(marker);
-            });
-          REGION_MARKER_LIST.push(MARKER);
-        });
-    }
+    /* FUNCTIONS */
 
     const loadAddress = product => {
       const ADDRESS =
@@ -366,7 +376,7 @@
         marker?.latlng ? marker?.latlng : marker?._latlng ? marker?._latlng : [46.227638, 2.213749],
         marker === undefined ? 6 : zoom ? zoom : MAP.getZoom() > MARKER_ZOOM ? MAP.getZoom() : MARKER_ZOOM
       );
-      marker.openPopup();
+      if (marker?.options?.title) marker.openPopup();
     }
   </script>
 
