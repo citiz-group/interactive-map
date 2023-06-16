@@ -69,7 +69,12 @@
   </div>
 
   <script>
-    const MAP = L.map('map').setView([46.227638, 2.213749], 6);
+    const MAP = L.map('map', {
+      center: [46.227638, 2.213749],
+      maxBoundsViscosity: 1,
+      minZoom: 6,
+      zoom: 6
+    });
 
     const TILES = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://immocitiz.fr/" target="_top">Immocitiz</a>',
@@ -85,6 +90,7 @@
 
     let carouselIndex = 1;
 
+    MAP.setMaxBounds(MAP.getBounds());
     fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts')
       .then(response => response.json())
       .then(response => {
@@ -101,6 +107,7 @@
         });
         loadMarkers(REGION_MARKERS, 'region');
         loadList();
+        console.log(MAP.locate());
       });
 
     const loadRegion = (name, description) => {
@@ -342,26 +349,24 @@
     };
 
     const setView = (marker, zoom) => {
-      const LATLNG = marker?.latlng ? marker?.latlng : marker?._latlng ? marker?._latlng : [46.227638, 2.213749];
-      // TODO: Add "Toutes (0)" zoom
-      const MARKER_ZOOM =
-        ['Auvergne-Rhône-Alpes',
-         'Bourgogne-Franche-Comté',
-         'Bretagne',
-         'Centre-Val de Loire',
-         'Corse',
-         'Grand Est',
-         'Grand Ouest',
-         'Hauts-de-France',
-         'Île-de-France',
-         'Normandie',
-         'Nouvelle-Aquitaine',
-         'Occitanie',
-         'Pays de la Loire',
-         'Provence-Alpes-Côte d\'Azur'].indexOf(marker?.sourceTarget?.options.title) > -1 ? 7.5 : 15 ;
-      const ZOOM = zoom ? zoom : MAP.getZoom() > MARKER_ZOOM ? MAP.getZoom() : MARKER_ZOOM;
-
-      MAP.setView(LATLNG, ZOOM);
+      const MARKER_ZOOM = ['Auvergne-Rhône-Alpes',
+                           'Bourgogne-Franche-Comté',
+                           'Bretagne',
+                           'Centre-Val de Loire',
+                           'Corse',
+                           'Grand Est',
+                           'Grand Ouest',
+                           'Hauts-de-France',
+                           'Île-de-France',
+                           'Normandie',
+                           'Nouvelle-Aquitaine',
+                           'Occitanie',
+                           'Pays de la Loire',
+                           'Provence-Alpes-Côte d\'Azur'].indexOf(marker?.sourceTarget?.options.title) > -1 ? 7.5 : 15;
+      MAP.flyTo(
+        marker?.latlng ? marker?.latlng : marker?._latlng ? marker?._latlng : [46.227638, 2.213749],
+        marker === undefined ? 6 : zoom ? zoom : MAP.getZoom() > MARKER_ZOOM ? MAP.getZoom() : MARKER_ZOOM
+      );
       marker.openPopup();
     }
   </script>
