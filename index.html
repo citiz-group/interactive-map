@@ -333,7 +333,7 @@
       cards += '<div style="border-top: 1px solid rgba(0, 0, 0, .1); padding: 10px;">&sup1; Investissement total, &sup2; Rentabilité brute</div>';
 
       document.getElementById('counter').innerHTML = sortedList.length;
-      document.getElementById('regionSelect').innerHTML = '<option value="Toutes">Toutes (' + sortedList.length + ')</option>';
+      document.getElementById('regionSelect').innerHTML = '<option value="Toutes">Toutes (' + ADDRESS_LIST.length + ')</option>';
       Object.keys(regions).sort().forEach(region => {
         document.getElementById('regionSelect').innerHTML += '<option value="' + region + '">' + region + ' (' + regions[region] + ')</option>';
       });
@@ -342,7 +342,8 @@
     };
 
     const setView = (marker, zoom) => {
-      const LATLNG = marker.latlng ? marker.latlng : marker._latlng;
+      const LATLNG = marker?.latlng ? marker?.latlng : marker?._latlng ? marker?._latlng : [46.227638, 2.213749];
+      // TODO: Add "Toutes (0)" zoom
       const MARKER_ZOOM =
         ['Auvergne-Rhône-Alpes',
          'Bourgogne-Franche-Comté',
@@ -357,7 +358,7 @@
          'Nouvelle-Aquitaine',
          'Occitanie',
          'Pays de la Loire',
-         'Provence-Alpes-Côte d\'Azur'].indexOf(marker.sourceTarget?.options.title) > -1 ? 7.5 : 15 ;
+         'Provence-Alpes-Côte d\'Azur'].indexOf(marker?.sourceTarget?.options.title) > -1 ? 7.5 : 15 ;
       const ZOOM = zoom ? zoom : MAP.getZoom() > MARKER_ZOOM ? MAP.getZoom() : MARKER_ZOOM;
 
       MAP.setView(LATLNG, ZOOM);
