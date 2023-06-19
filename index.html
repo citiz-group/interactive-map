@@ -91,6 +91,8 @@
     const ADDRESS_MARKER_LIST = [];
     const ADDRESS_LIST = [];
 
+    // const LOCATE = MAP.locate();
+
     let carouselIndex = 1;
 
     MAP.setMaxBounds(MAP.getBounds());
@@ -157,7 +159,7 @@
                       '</svg>' +
                       '<span style="margin-left: 20px;">' +
                         '<b>' + region[1] + '</b> opportunité(s)<br>' +
-                        '<button type="button" class="btn btn-primary">Afficher</button>' +
+                        '<button class="btn btn-primary" onclick="loadMarkers(ADDRESS_MARKERS, \'address\');" type="button">Afficher</button>' +
                       '</span>' +
                     '</div>' +
                     collection
