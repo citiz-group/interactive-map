@@ -27,16 +27,16 @@
 <body style="font-family: 'Inter', sans-serif; display: flex; height: 100%; margin: 0; width: 100%;">
   <div id="map" style="height: 100%; width: 62.5%;"></div>
   <form style="align-items: center;
-              background-clip: padding-box;
-              background-color: white;
-              border: 2px solid rgba(0, 0, 0, .2);
-              border-radius: 5px;
-              display: flex;
-              left: 52px;
-              padding: 10px;
-              position: absolute;
-              top: 10px;
-              z-index: 999;">
+               background-clip: padding-box;
+               background-color: white;
+               border: 2px solid rgba(0, 0, 0, .2);
+               border-radius: 5px;
+               display: flex;
+               left: 52px;
+               padding: 10px;
+               position: absolute;
+               top: 10px;
+               z-index: 999;">
     <span>Filtrer par&nbsp;</span>
     <input checked id="region" name="filter" onclick="loadMarkers(REGION_MARKERS, 'region');" type="radio">
     <label for="region">&nbsp;région&nbsp;</label>
@@ -91,10 +91,10 @@
     const ADDRESS_MARKER_LIST = [];
     const ADDRESS_LIST = [];
 
-    // const LOCATE = MAP.locate();
-
     let carouselIndex = 1;
+    let userLocation = 0;
 
+    MAP.locate();
     MAP.setMaxBounds(MAP.getBounds());
 
     /* MAIN */
@@ -109,6 +109,7 @@
             regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] = 0;
           }
           regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']]++;
+
           loadAddress(product);
         });
 
@@ -180,6 +181,13 @@
         loadMarkers(REGION_MARKERS, 'region');
         loadList();
       });
+
+    /* EVENT */
+
+    MAP.on('locationfound', location => {
+      userLocation = location;
+      setDistance(userLocation);
+    });
 
     /* FUNCTIONS */
 
@@ -281,7 +289,9 @@
             ).on('click', marker => {
               setView(marker);
             });
+
           carouselIndex++;
+
           ADDRESS_MARKER_LIST.push(MARKER);
           ADDRESS_LIST.push({
             card:
@@ -290,16 +300,19 @@
                 '<div ' +
                   'onclick="loadMarkers(ADDRESS_MARKERS, \'address\'); setView(ADDRESS_MARKER_LIST[' + (carouselIndex / 2 - 1) + '], 15);" ' +
                   'style="display: flex; flex-direction: column; justify-content: space-around; padding: 20px; width: 62.5%;">' +
-                  '<div style="align-items: center; display: flex;">' +
-                    '<div style="margin-right: 10px;">' +
-                      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, 1)" class="bi bi-geo" viewBox="0 0 16 16">' +
-                        '<path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z"/>' +
-                      '</svg>' +
+                  '<div style="display: flex; justify-content: space-between;">' +
+                    '<div style="align-items: center; display: flex;">' +
+                      '<div style="margin-right: 10px;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, 1)" class="bi bi-geo" viewBox="0 0 16 16">' +
+                          '<path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z"/>' +
+                        '</svg>' +
+                      '</div>' +
+                      '<div>' +
+                        '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] + '</span><br>' +
+                        '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() + ' (' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] + ')</span>' +
+                      '</div>' +
                     '</div>' +
-                    '<div>' +
-                      '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] + '</span><br>' +
-                      '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() + ' (' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] + ')</span>' +
-                    '</div>' +
+                    '<div id="distance' + carouselIndex + '" style="color: gray; float: right; text-align: right;"></div>' +
                   '</div>' +
                   '<div>' +
                     '<span style="display: flex; justify-content: space-between;">' +
@@ -320,11 +333,16 @@
                   '<a href="' + STORE + '" target="_top">En savoir plus</a>' +
                 '</div>' +
               '</div>',
+            id: carouselIndex,
+            latitude: response.results[0].geometry.location.lat,
+            longitude: response.results[0].geometry.location.lng,
             profitability: PROFITABILITY,
             region: product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1'],
             totalInvestment: TOTAL_INVESTMENT
           });
+
           carouselIndex++;
+
           loadList();
         });
     };
@@ -378,6 +396,32 @@
       });
       document.getElementById('regionSelect').value = SELECTED_REGION;
       document.getElementById('list').innerHTML = cards;
+
+      setDistance(userLocation);
+    };
+
+    const setDistance = userLocation => {
+      if (userLocation) {
+        ADDRESS_LIST.forEach(address => {
+          fetch('https://europe-west1-single-odyssey-372313.cloudfunctions.net/fetch?name=directions' +
+            '&originLatitude=' + userLocation.latitude + '&originLongitude=' + userLocation.longitude +
+            '&destinationLatitude=' + address.latitude + '&destinationLongitude=' + address.longitude)
+            .then(response => response.json())
+            .then(response => {
+              const DISTANCE =
+                response.routes[0].distanceMeters > 999 ?
+                  String(response.routes[0].distanceMeters).substring(0, String(response.routes[0].distanceMeters).length - 3).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') :
+                  'moins d\'un';
+              const MINUTES = '0' + Math.round(parseInt(response.routes[0].duration) / 60 % 60);
+              const DURATION =
+                parseInt(response.routes[0].duration) > 3600 ?
+                  Math.round(parseInt(response.routes[0].duration) / 60 / 60) + 'h' + MINUTES.substring(MINUTES.length - 2, MINUTES.length) :
+                  Math.round(parseInt(response.routes[0].duration) / 60) + ' min';
+
+              document.getElementById('distance' + address.id).innerHTML = 'à ' + DISTANCE + ' km<br>soit ' + DURATION + ' en voiture';
+            });
+        });
+      }
     };
 
     const setView = (marker, zoom) => {
@@ -400,7 +444,7 @@
         marker === undefined ? 6 : zoom ? zoom : MAP.getZoom() > MARKER_ZOOM ? MAP.getZoom() : MARKER_ZOOM
       );
       if (marker?.options?.title) marker.openPopup();
-    }
+    };
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
