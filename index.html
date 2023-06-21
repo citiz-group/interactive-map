@@ -149,8 +149,15 @@
               collection += '" target="_top">En savoir plus</a>';
 
               const MARKER =
-                L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], { title: region[0] })
-                  .addTo(REGION_MARKERS)
+                L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
+                  icon: L.icon({
+                    iconAnchor: [12.5, 41],
+                    iconUrl: 'icons/marker-icon-red.png',
+                    popupAnchor: [1, -41],
+                    shadowUrl: 'icons/marker-shadow.png'
+                  }),
+                  title: region[0]
+                }).addTo(REGION_MARKERS)
                   .bindPopup(
                     '<div style="border-bottom: 1px solid rgba(0, 0, 0, .1); font-weight: bold; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
                     '<div style="align-items: center; border-bottom: 1px solid rgba(0, 0, 0, .1); display: flex; margin-bottom: 10px; padding-bottom: 10px;">' +
@@ -232,6 +239,12 @@
             '</div>';
           }
           const MARKER = L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
+              icon: L.icon({
+                iconAnchor: [12.5, 41],
+                iconUrl: 'icons/marker-icon.png',
+                popupAnchor: [1, -41],
+                shadowUrl: 'icons/marker-shadow.png'
+              }),
               title: ADDRESS
           }).addTo(ADDRESS_MARKERS)
             .bindPopup(
