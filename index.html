@@ -401,27 +401,27 @@
     };
 
     const setDistance = userLocation => {
-      if (userLocation) {
-        ADDRESS_LIST.forEach(address => {
-          fetch('https://europe-west1-single-odyssey-372313.cloudfunctions.net/fetch?name=directions' +
-            '&originLatitude=' + userLocation.latitude + '&originLongitude=' + userLocation.longitude +
-            '&destinationLatitude=' + address.latitude + '&destinationLongitude=' + address.longitude)
-            .then(response => response.json())
-            .then(response => {
-              const DISTANCE =
-                response.routes[0].distanceMeters > 999 ?
-                  String(response.routes[0].distanceMeters).substring(0, String(response.routes[0].distanceMeters).length - 3).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') :
-                  'moins d\'un';
-              const MINUTES = '0' + Math.round(parseInt(response.routes[0].duration) / 60 % 60);
-              const DURATION =
-                parseInt(response.routes[0].duration) > 3600 ?
-                  Math.round(parseInt(response.routes[0].duration) / 60 / 60) + 'h' + MINUTES.substring(MINUTES.length - 2, MINUTES.length) :
-                  Math.round(parseInt(response.routes[0].duration) / 60) + ' min';
+      // if (userLocation) {
+      //   ADDRESS_LIST.forEach(address => {
+      //     fetch('https://europe-west1-single-odyssey-372313.cloudfunctions.net/fetch?name=directions' +
+      //       '&originLatitude=' + userLocation.latitude + '&originLongitude=' + userLocation.longitude +
+      //       '&destinationLatitude=' + address.latitude + '&destinationLongitude=' + address.longitude)
+      //       .then(response => response.json())
+      //       .then(response => {
+      //         const DISTANCE =
+      //           response.routes[0].distanceMeters > 999 ?
+      //             String(response.routes[0].distanceMeters).substring(0, String(response.routes[0].distanceMeters).length - 3).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') :
+      //             'moins d\'un';
+      //         const MINUTES = '0' + Math.round(parseInt(response.routes[0].duration) / 60 % 60);
+      //         const DURATION =
+      //           parseInt(response.routes[0].duration) > 3600 ?
+      //             Math.round(parseInt(response.routes[0].duration) / 60 / 60) + 'h' + MINUTES.substring(MINUTES.length - 2, MINUTES.length) :
+      //             Math.round(parseInt(response.routes[0].duration) / 60) + ' min';
 
-              document.getElementById('distance' + address.id).innerHTML = 'à ' + DISTANCE + ' km<br>soit ' + DURATION + ' en voiture';
-            });
-        });
-      }
+      //         document.getElementById('distance' + address.id).innerHTML = 'à ' + DISTANCE + ' km<br>soit ' + DURATION + ' en voiture';
+      //       });
+      //   });
+      // }
     };
 
     const setView = (marker, zoom) => {
