@@ -130,7 +130,6 @@
     const ADDRESS_LIST = [];
 
     let carouselIndex = 1;
-    let userLocation = 0;
 
     // MAP.locate();
     MAP.setMaxBounds(MAP.getBounds());
@@ -231,10 +230,7 @@
 
     /* EVENTS */
 
-    MAP.on('locationfound', location => {
-      userLocation = location;
-      setDistance(userLocation);
-    });
+    MAP.on('locationfound', location => setTravelInformations(location));
 
     /* FUNCTIONS */
 
@@ -478,11 +474,14 @@
       document.getElementById('list').innerHTML = cards;
     };
 
-    const setDistance = userLocation => {
-      if (userLocation) {
+    /*  Calculates and prints the distance and travel time between a given location and a set list of addresses.
+     *    @param {object} location - The starting location for calculating distances and travel times.
+     */
+    const setTravelInformations = location => {
+      if (location) {
         ADDRESS_LIST.forEach(address => {
           fetch('https://europe-west1-single-odyssey-372313.cloudfunctions.net/fetch?name=directions' +
-            '&originLatitude=' + userLocation.latitude + '&originLongitude=' + userLocation.longitude +
+            '&originLatitude=' + location.latitude + '&originLongitude=' + location.longitude +
             '&destinationLatitude=' + address.latitude + '&destinationLongitude=' + address.longitude)
             .then(response => response.json())
             .then(response => {
@@ -491,17 +490,21 @@
                   String(response.routes[0].distanceMeters).substring(0, String(response.routes[0].distanceMeters).length - 3).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') :
                   'moins d\'un';
               const MINUTES = '0' + Math.round(parseInt(response.routes[0].duration) / 60 % 60);
-              const DURATION =
+              const TRAVEL_TIME =
                 parseInt(response.routes[0].duration) > 3600 ?
                   Math.round(parseInt(response.routes[0].duration) / 60 / 60) + 'h' + MINUTES.substring(MINUTES.length - 2, MINUTES.length) :
                   Math.round(parseInt(response.routes[0].duration) / 60) + ' min';
 
-              document.getElementById('distance' + address.id).innerHTML = 'à ' + DISTANCE + ' km<br>soit ' + DURATION + ' en voiture';
+              document.getElementById('distance' + address.id).innerHTML = 'à ' + DISTANCE + ' km<br>soit ' + TRAVEL_TIME + ' en voiture';
             });
         });
       }
     };
 
+    /*  Adjusts the view and zoom level of an interactive map based on the given marker and zoom level.
+     *    @param {marker} marker - The marker representing the new position on the map.
+     *    @param {number} zoom - The desired zoom level for the map.
+     */
     const setView = (marker, zoom) => {
       const MARKER_ZOOM = ['Auvergne-Rhône-Alpes',
                            'Bourgogne-Franche-Comté',
