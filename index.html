@@ -117,7 +117,7 @@
       zoomAnimation: true
     }).addTo(MAP);
 
-    const TILES = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const TILES_LAYER = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
       maxZoom: 99
     }).addTo(MAP);
@@ -132,7 +132,7 @@
     let carouselIndex = 1;
     let userLocation = 0;
 
-    MAP.locate();
+    // MAP.locate();
     MAP.setMaxBounds(MAP.getBounds());
 
     /* MAIN */
@@ -191,21 +191,30 @@
                 L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
                   icon: L.icon({
                     iconAnchor: [12.5, 41],
-                    iconUrl: 'icons/marker-icon-red.png',
+                    iconUrl: 'marker-icons/marker-icon-red.png',
                     popupAnchor: [1, -41],
-                    shadowUrl: 'icons/marker-shadow.png'
+                    shadowUrl: 'marker-icons/marker-shadow.png'
                   }),
                   title: region[0]
                 }).addTo(REGION_MARKERS)
                   .bindPopup(
-                    '<div style="border-bottom: 1px solid rgba(0, 0, 0, .1); font-weight: bold; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
-                    '<div style="align-items: center; border-bottom: 1px solid rgba(0, 0, 0, .1); display: flex; margin-bottom: 10px; padding-bottom: 10px;">' +
-                      '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="rgba(0, 0, 0, 1)" class="bi bi-shop" viewBox="0 0 16 16">' +
+                    '<div class="fw-bold" ' +
+                         'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
+                    '<div class="align-items-center d-flex" ' +
+                         'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
+                      '<svg class="bi bi-shop" ' +
+                           'fill="rgba(0, 0, 0, 1)" ' +
+                           'height="48" ' +
+                           'viewBox="0 0 16 16" ' +
+                           'width="48" ' +
+                           'xmlns="http://www.w3.org/2000/svg">' +
                         '<path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>' +
                       '</svg>' +
                       '<span style="margin-left: 20px;">' +
                         '<b>' + region[1] + '</b> opportunité(s)<br>' +
-                        '<button class="btn btn-primary" onclick="loadMarkers(ADDRESS_MARKERS, \'address\');" type="button">Afficher</button>' +
+                        '<button class="btn btn-primary" ' +
+                                'onclick="loadMarkers(ADDRESS_MARKERS, \'address\');" ' +
+                                'type="button">Afficher</button>' +
                       '</span>' +
                     '</div>' +
                     collection
@@ -220,14 +229,11 @@
         loadList();
       });
 
-    /* EVENT */
+    /* EVENTS */
 
     MAP.on('locationfound', location => {
-      // userLocation = location;
-      // setDistance(userLocation);
-      setTimeout(() => {
-        setDistance(userLocation);
-      }, 5000);
+      userLocation = location;
+      setDistance(userLocation);
     });
 
     /* FUNCTIONS */
@@ -247,42 +253,42 @@
       fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(ADDRESS))
         .then(response => response.json())
         .then(response => {
-          const carousel = i => {
-            return '<div id="carouselExampleIndicators' + i + '" class="carousel rounded-4 slide">' +
+          const CAROUSEL = i => {
+            return '<div class="carousel rounded-4 slide" id="carousel' + i + '">' +
               '<div class="carousel-indicators">' +
-                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>' +
-                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="1" aria-label="Slide 2"></button>' +
-                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="2" aria-label="Slide 3"></button>' +
-                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="3" aria-label="Slide 4"></button>' +
-                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="4" aria-label="Slide 5"></button>' +
-                '<button type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide-to="5" aria-label="Slide 6"></button>' +
+                '<button aria-current="true" aria-label="Slide 1" class="active" data-bs-slide-to="0" data-bs-target="#carousel' + i + '" type="button"></button>' +
+                '<button aria-label="Slide 2" data-bs-slide-to="1" data-bs-target="#carousel' + i + '" type="button"></button>' +
+                '<button aria-label="Slide 3" data-bs-slide-to="2" data-bs-target="#carousel' + i + '" type="button"></button>' +
+                '<button aria-label="Slide 4" data-bs-slide-to="3" data-bs-target="#carousel' + i + '" type="button"></button>' +
+                '<button aria-label="Slide 5" data-bs-slide-to="4" data-bs-target="#carousel' + i + '" type="button"></button>' +
+                '<button aria-label="Slide 6" data-bs-slide-to="5" data-bs-target="#carousel' + i + '" type="button"></button>' +
               '</div>' +
               '<div class="carousel-inner h-100 rounded-4">' +
-                '<div class="carousel-item h-100 rounded-4 active">' +
-                  '<img src="' + product['9bfb960a08f96d955136571b244c555d007cf46b'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
+                '<div class="active carousel-item h-100 rounded-4">' +
+                  '<img class="d-block h-100 w-100" src="' + product['9bfb960a08f96d955136571b244c555d007cf46b'] + '?profile=visuel1">' +
                 '</div>' +
                 '<div class="carousel-item h-100">' +
-                  '<img src="' + product['7ffff78b28d3373fb4fca0d8b9a3b7a3c068587b'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
+                  '<img class="d-block h-100 w-100" src="' + product['7ffff78b28d3373fb4fca0d8b9a3b7a3c068587b'] + '?profile=visuel1">' +
                 '</div>' +
                 '<div class="carousel-item h-100">' +
-                  '<img src="' + product['a724765a4be4748b733c1d1b3ff3776619100eb9'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
+                  '<img class="d-block h-100 w-100" src="' + product['a724765a4be4748b733c1d1b3ff3776619100eb9'] + '?profile=visuel1">' +
                 '</div>' +
                 '<div class="carousel-item h-100">' +
-                  '<img src="' + product['ac1b837baad62b4f520901ce5d61ac3d9bc5f583'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
+                  '<img class="d-block h-100 w-100" src="' + product['ac1b837baad62b4f520901ce5d61ac3d9bc5f583'] + '?profile=visuel1">' +
                 '</div>' +
                 '<div class="carousel-item h-100">' +
-                  '<img src="' + product['4af197f76ca4d64a5c87a08244f483d5af6708b9'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
+                  '<img class="d-block h-100 w-100" src="' + product['4af197f76ca4d64a5c87a08244f483d5af6708b9'] + '?profile=visuel1">' +
                 '</div>' +
                 '<div class="carousel-item h-100">' +
-                  '<img src="' + product['8d2b9a917d094f7a62681cc8cfa18f1bff1eef52'] + '?profile=visuel1" class="d-block h-100 w-100" alt="...">' +
+                  '<img class="d-block h-100 w-100" src="' + product['8d2b9a917d094f7a62681cc8cfa18f1bff1eef52'] + '?profile=visuel1">' +
                 '</div>' +
               '</div>' +
-              '<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide="prev">' +
-                '<span class="carousel-control-prev-icon" aria-hidden="true"></span>' +
+              '<button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#carousel' + i + '" type="button">' +
+                '<span aria-hidden="true" class="carousel-control-prev-icon"></span>' +
                 '<span class="visually-hidden">Previous</span>' +
               '</button>' +
-              '<button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators' + i + '" data-bs-slide="next">' +
-                '<span class="carousel-control-next-icon" aria-hidden="true"></span>' +
+              '<button class="carousel-control-next" data-bs-slide="next" data-bs-target="#carousel' + i + '" type="button">' +
+                '<span aria-hidden="true" class="carousel-control-next-icon"></span>' +
                 '<span class="visually-hidden">Next</span>' +
               '</button>' +
             '</div>';
@@ -290,17 +296,24 @@
           const MARKER = L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
               icon: L.icon({
                 iconAnchor: [12.5, 41],
-                iconUrl: 'icons/marker-icon.png',
+                iconUrl: 'marker-icons/marker-icon.png',
                 popupAnchor: [1, -41],
-                shadowUrl: 'icons/marker-shadow.png'
+                shadowUrl: 'marker-icons/marker-shadow.png'
               }),
               title: ADDRESS
           }).addTo(ADDRESS_MARKERS)
             .bindPopup(
-              '<div style="align-items: center; border-bottom: 1px solid rgba(0, 0, 0, .1); display: flex; padding: 6.5px 0 13px 0;">' +
+              '<div class="align-items-center d-flex" ' +
+                   'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; padding: 6.5px 0 13px 0;">' +
                 '<div style="margin-right: 10px;">' +
-                  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, 1)" class="bi bi-geo" viewBox="0 0 16 16">' +
-                    '<path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z"/>' +
+                  '<svg class="bi bi-geo" ' +
+                       'fill="rgba(0, 0, 0, 1)" ' +
+                       'height="24" ' +
+                       'viewBox="0 0 16 16" ' +
+                       'width="24" ' +
+                       'xmlns="http://www.w3.org/2000/svg">' +
+                    '<path d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" ' +
+                          'fill-rule="evenodd"/>' +
                   '</svg>' +
                 '</div>' +
                 '<div>' +
@@ -309,24 +322,31 @@
                 '</div>' +
               '</div><br>' +
               '<div>' +
-                '<span style="display: flex; justify-content: space-around;">' +
-                  '<span style="align-items: center; display: flex;">' +
-                    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, 1)" class="bi bi-wallet2" viewBox="0 0 16 16">' +
+                '<span class="align-items-around d-flex">' +
+                  '<span class="align-items-center d-flex">' +
+                    '<svg class="bi bi-wallet2" ' +
+                         'fill="rgba(0, 0, 0, 1)" ' +
+                         'height="24" ' +
+                         'viewBox="0 0 16 16" ' +
+                         'width="24" ' +
+                         'xmlns="http://www.w3.org/2000/svg">' +
                       '<path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>' +
                     '</svg>' +
-                    '<b>&nbsp;&nbsp;' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>&nbsp;&sup1;' +
+                    '&nbsp;&nbsp;<b>' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>&nbsp;&sup1;' +
                   '</span>' +
                   '<span style="width: 100px;"></span>' +
-                  '<span style="align-items: center; display: flex;">' +
-                    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, 1)" class="bi bi-graph-up-arrow" viewBox="0 0 16 16">' +
-                      '<path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z"/>' +
+                  '<span class="align-items-center d-flex">' +
+                    '<svg class="bi bi-graph-up-arrow" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
+                      '<path d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z" ' +
+                            'fill-rule="evenodd"/>' +
                     '</svg>' +
-                    '<b>&nbsp;&nbsp;' + PROFITABILITY.toString().replace('.', ',') + ' %</b>&nbsp;&sup2;' +
+                    '&nbsp;&nbsp;<b>' + PROFITABILITY.toString().replace('.', ',') + ' %</b>&nbsp;&sup2;' +
                   '</span>' +
                 '</span>' +
               '</div><br>' +
-              carousel(carouselIndex) + '<br>' +
-              '<a href="' + STORE + '" target="_blank">En savoir plus</a>'
+              CAROUSEL(carouselIndex) + '<br>' +
+              '<a href="' + STORE + '" ' +
+                 'target="_blank">En savoir plus</a>'
             ).on('click', marker => {
               setView(marker);
             });
@@ -336,16 +356,22 @@
           ADDRESS_MARKER_LIST.push(MARKER);
           ADDRESS_LIST.push({
             card:
-              '<div class="rounded-4" onmouseleave="this.classList.remove(\'shadow\');" onmouseover="this.classList.add(\'shadow\');" style="background-color: #fff; border: 1px solid rgba(0, 0, 0, .1); border-radius: 0 16px 16px 0; center; display: flex; cursor: pointer; margin: 20px; padding: 10px">' +
-                '<div style="display: flex; justify-content: center; max-width: 37.5%;">' + carousel(carouselIndex) + '</div>' +
-                '<div ' +
-                  'onclick="loadMarkers(ADDRESS_MARKERS, \'address\'); setView(ADDRESS_MARKER_LIST[' + (carouselIndex / 2 - 1) + '], 15);" ' +
-                  'style="display: flex; flex-direction: column; justify-content: space-around; padding: 20px; width: 62.5%;">' +
-                  '<div style="display: flex; justify-content: space-between;">' +
-                    '<div style="align-items: center; display: flex;">' +
+              '<div class="bg-white d-flex rounded-4" ' +
+                   'onmouseleave="this.classList.remove(\'shadow\');" ' +
+                   'onmouseover="this.classList.add(\'shadow\');" ' +
+                   'style="border: rgba(0, 0, 0, .1) solid 1px; border-radius: 0 16px 16px 0; cursor: pointer; margin: 20px; padding: 10px">' +
+                '<div class="d-flex justify-content-center" ' +
+                     'style="max-width: 37.5%;">' + CAROUSEL(carouselIndex) + '</div>' +
+                '<div class="d-flex flex-column justify-content-around" ' +
+                     'onclick="loadMarkers(ADDRESS_MARKERS, \'address\'); ' +
+                              'setView(ADDRESS_MARKER_LIST[' + (carouselIndex / 2 - 1) + '], 15);" ' +
+                     'style="padding: 20px; width: 62.5%;">' +
+                  '<div class="d-flex justify-content-between">' +
+                    '<div class="align-items-center d-flex">' +
                       '<div style="margin-right: 10px;">' +
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, 1)" class="bi bi-geo" viewBox="0 0 16 16">' +
-                          '<path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z"/>' +
+                        '<svg class="bi bi-geo" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
+                          '<path d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" ' +
+                                'fill-rule="evenodd"/>' +
                         '</svg>' +
                       '</div>' +
                       '<div>' +
@@ -353,25 +379,37 @@
                         '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() + ' (' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] + ')</span>' +
                       '</div>' +
                     '</div>' +
-                    '<div id="distance' + carouselIndex + '" style="color: gray; float: right; text-align: right;"></div>' +
+                    '<div class="text-end text-secondary" id="distance' + carouselIndex + '"></div>' +
                   '</div>' +
                   '<div>' +
-                    '<span style="display: flex; justify-content: space-between;">' +
-                      '<span style="align-items: center; display: flex;">' +
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, 1)" class="bi bi-wallet2" viewBox="0 0 16 16">' +
+                    '<span class="d-flex justify-content-between">' +
+                      '<span class="align-items-center d-flex">' +
+                        '<svg class="bi bi-wallet2" ' +
+                             'fill="rgba(0, 0, 0, 1)" ' +
+                             'height="24" ' +
+                             'viewBox="0 0 16 16" ' +
+                             'width="24" ' +
+                             'xmlns="http://www.w3.org/2000/svg">' +
                           '<path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>' +
                         '</svg>' +
-                        '<b>&nbsp;&nbsp;' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>&nbsp;&sup1;' +
+                        '&nbsp;&nbsp;<b>' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>&nbsp;&sup1;' +
                       '</span>' +
-                      '<span style="align-items: center; display: flex;">' +
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(0, 0, 0, 1)" class="bi bi-graph-up-arrow" viewBox="0 0 16 16">' +
-                          '<path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z"/>' +
+                      '<span class="align-items-center d-flex">' +
+                        '<svg class="bi bi-graph-up-arrow" ' +
+                             'fill="rgba(0, 0, 0, 1)" ' +
+                             'height="24" ' +
+                             'viewBox="0 0 16 16" ' +
+                             'width="24" ' +
+                             'xmlns="http://www.w3.org/2000/svg">' +
+                          '<path d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z" ' +
+                                'fill-rule="evenodd"/>' +
                         '</svg>' +
-                        '<b>&nbsp;&nbsp;' + PROFITABILITY.toString().replace('.', ',') + ' %</b>&nbsp;&sup2;' +
+                        '&nbsp;&nbsp;<b>' + PROFITABILITY.toString().replace('.', ',') + ' %</b>&nbsp;&sup2;' +
                       '</span>' +
                     '</span>' +
                   '</div>' +
-                  '<a href="' + STORE + '" target="_blank">En savoir plus</a>' +
+                  '<a href="' + STORE + '" ' +
+                     'target="_blank">En savoir plus</a>' +
                 '</div>' +
               '</div>',
             id: carouselIndex,
@@ -397,6 +435,7 @@
 
     const loadList = _ => {
       const SELECTED_REGION = document.getElementById('regionSelect').value;
+
       let regions = {};
       let sortedList = [];
       let cards = '';
@@ -428,7 +467,7 @@
       sortedList.forEach(address => {
         cards += address.card;
       });
-      cards += '<div style="border-top: 1px solid rgba(0, 0, 0, .1); padding: 10px;">&sup1; Investissement total, &sup2; Rentabilité brute</div>';
+      cards += '<div style="border-top: rgba(0, 0, 0, .1) solid 1px; padding: 10px;">&sup1; Investissement total, &sup2; Rentabilité brute</div>';
 
       document.getElementById('counter').innerHTML = sortedList.length;
       document.getElementById('regionSelect').innerHTML = '<option value="Toutes">Toutes (' + ADDRESS_LIST.length + ')</option>';
@@ -442,23 +481,23 @@
     const setDistance = userLocation => {
       if (userLocation) {
         ADDRESS_LIST.forEach(address => {
-          // fetch('https://europe-west1-single-odyssey-372313.cloudfunctions.net/fetch?name=directions' +
-          //   '&originLatitude=' + userLocation.latitude + '&originLongitude=' + userLocation.longitude +
-          //   '&destinationLatitude=' + address.latitude + '&destinationLongitude=' + address.longitude)
-          //   .then(response => response.json())
-          //   .then(response => {
-          //     const DISTANCE =
-          //       response.routes[0].distanceMeters > 999 ?
-          //         String(response.routes[0].distanceMeters).substring(0, String(response.routes[0].distanceMeters).length - 3).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') :
-          //         'moins d\'un';
-          //     const MINUTES = '0' + Math.round(parseInt(response.routes[0].duration) / 60 % 60);
-          //     const DURATION =
-          //       parseInt(response.routes[0].duration) > 3600 ?
-          //         Math.round(parseInt(response.routes[0].duration) / 60 / 60) + 'h' + MINUTES.substring(MINUTES.length - 2, MINUTES.length) :
-          //         Math.round(parseInt(response.routes[0].duration) / 60) + ' min';
+          fetch('https://europe-west1-single-odyssey-372313.cloudfunctions.net/fetch?name=directions' +
+            '&originLatitude=' + userLocation.latitude + '&originLongitude=' + userLocation.longitude +
+            '&destinationLatitude=' + address.latitude + '&destinationLongitude=' + address.longitude)
+            .then(response => response.json())
+            .then(response => {
+              const DISTANCE =
+                response.routes[0].distanceMeters > 999 ?
+                  String(response.routes[0].distanceMeters).substring(0, String(response.routes[0].distanceMeters).length - 3).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') :
+                  'moins d\'un';
+              const MINUTES = '0' + Math.round(parseInt(response.routes[0].duration) / 60 % 60);
+              const DURATION =
+                parseInt(response.routes[0].duration) > 3600 ?
+                  Math.round(parseInt(response.routes[0].duration) / 60 / 60) + 'h' + MINUTES.substring(MINUTES.length - 2, MINUTES.length) :
+                  Math.round(parseInt(response.routes[0].duration) / 60) + ' min';
 
-          //     document.getElementById('distance' + address.id).innerHTML = 'à ' + DISTANCE + ' km<br>soit ' + DURATION + ' en voiture';
-          //   });
+              document.getElementById('distance' + address.id).innerHTML = 'à ' + DISTANCE + ' km<br>soit ' + DURATION + ' en voiture';
+            });
         });
       }
     };
