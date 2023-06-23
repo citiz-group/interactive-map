@@ -104,8 +104,8 @@
   </div>
 
   <script>
-
-    /* INITIALIZATIONS */
+    /*  INITIALIZATIONS
+     */
 
     const MAP = L.map('map', {
       center: [46.227638, 2.213749],
@@ -139,7 +139,8 @@
     // MAP.locate();
     MAP.setMaxBounds(MAP.getBounds());
 
-    /* MAIN */
+    /*  MAIN
+     */
 
     fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts')
       .then(response => response.json())
@@ -233,11 +234,64 @@
         loadList();
       });
 
-    /* EVENTS */
+    /*  EVENT LISTENERS
+     */
 
+    /*  Event listener that triggers when a user shares their location and executes a function
+     *  to calculate and print the distance and travel time between the user's location and a set list of addresses.
+     *  The user's location is passed as a parameter to the function.
+     */
     MAP.on('locationfound', location => setTravelInformations(location));
 
-    /* FUNCTIONS */
+    /*  FUNCTIONS
+     */
+
+    /*  Generates an HTML string of an image carousel based on a given product object and index.
+     *    @param {object} product - The product object containing information about the images.
+     *    @param {number} i - The index representing the current carousel.
+     *    @returns {string} - The HTML string representing the image carousel.
+     */
+    const getCarousel = (product, i) => {
+      return '' +
+        '<div class="carousel rounded-4 slide" id="carousel' + i + '">' +
+          '<div class="carousel-indicators">' +
+            '<button aria-current="true" aria-label="Slide 1" class="active" data-bs-slide-to="0" data-bs-target="#carousel' + i + '" type="button"></button>' +
+            '<button aria-label="Slide 2" data-bs-slide-to="1" data-bs-target="#carousel' + i + '" type="button"></button>' +
+            '<button aria-label="Slide 3" data-bs-slide-to="2" data-bs-target="#carousel' + i + '" type="button"></button>' +
+            '<button aria-label="Slide 4" data-bs-slide-to="3" data-bs-target="#carousel' + i + '" type="button"></button>' +
+            '<button aria-label="Slide 5" data-bs-slide-to="4" data-bs-target="#carousel' + i + '" type="button"></button>' +
+            '<button aria-label="Slide 6" data-bs-slide-to="5" data-bs-target="#carousel' + i + '" type="button"></button>' +
+          '</div>' +
+          '<div class="carousel-inner h-100 rounded-4">' +
+            '<div class="active carousel-item h-100 rounded-4">' +
+              '<img class="d-block h-100 w-100" src="' + product['9bfb960a08f96d955136571b244c555d007cf46b'] + '?profile=visuel1">' +
+            '</div>' +
+            '<div class="carousel-item h-100">' +
+              '<img class="d-block h-100 w-100" src="' + product['7ffff78b28d3373fb4fca0d8b9a3b7a3c068587b'] + '?profile=visuel1">' +
+            '</div>' +
+            '<div class="carousel-item h-100">' +
+              '<img class="d-block h-100 w-100" src="' + product['a724765a4be4748b733c1d1b3ff3776619100eb9'] + '?profile=visuel1">' +
+            '</div>' +
+            '<div class="carousel-item h-100">' +
+              '<img class="d-block h-100 w-100" src="' + product['ac1b837baad62b4f520901ce5d61ac3d9bc5f583'] + '?profile=visuel1">' +
+            '</div>' +
+            '<div class="carousel-item h-100">' +
+              '<img class="d-block h-100 w-100" src="' + product['4af197f76ca4d64a5c87a08244f483d5af6708b9'] + '?profile=visuel1">' +
+            '</div>' +
+            '<div class="carousel-item h-100">' +
+              '<img class="d-block h-100 w-100" src="' + product['8d2b9a917d094f7a62681cc8cfa18f1bff1eef52'] + '?profile=visuel1">' +
+            '</div>' +
+          '</div>' +
+          '<button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#carousel' + i + '" type="button">' +
+            '<span aria-hidden="true" class="carousel-control-prev-icon"></span>' +
+            '<span class="visually-hidden">Previous</span>' +
+          '</button>' +
+          '<button class="carousel-control-next" data-bs-slide="next" data-bs-target="#carousel' + i + '" type="button">' +
+            '<span aria-hidden="true" class="carousel-control-next-icon"></span>' +
+            '<span class="visually-hidden">Next</span>' +
+          '</button>' +
+        '</div>';
+    }
 
     const loadAddress = product => {
       const ADDRESS =
@@ -246,7 +300,7 @@
         product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() +
         ' (' +
         product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] +
-        ')'
+        ')';
       const PROFITABILITY = product['a2d1486abfd1f662fb387a34b0c590f4fd517ab8'].toFixed(2);
       const STORE = product['3a76ea85df1fa8b1d1885af9a1c72c9699b7dca4'];
       const TOTAL_INVESTMENT = product['6a494ae5c460f7cb49a521620bc0359fb3018c5f'].toFixed();
@@ -254,46 +308,6 @@
       fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(ADDRESS))
         .then(response => response.json())
         .then(response => {
-          const CAROUSEL = i => {
-            return '<div class="carousel rounded-4 slide" id="carousel' + i + '">' +
-              '<div class="carousel-indicators">' +
-                '<button aria-current="true" aria-label="Slide 1" class="active" data-bs-slide-to="0" data-bs-target="#carousel' + i + '" type="button"></button>' +
-                '<button aria-label="Slide 2" data-bs-slide-to="1" data-bs-target="#carousel' + i + '" type="button"></button>' +
-                '<button aria-label="Slide 3" data-bs-slide-to="2" data-bs-target="#carousel' + i + '" type="button"></button>' +
-                '<button aria-label="Slide 4" data-bs-slide-to="3" data-bs-target="#carousel' + i + '" type="button"></button>' +
-                '<button aria-label="Slide 5" data-bs-slide-to="4" data-bs-target="#carousel' + i + '" type="button"></button>' +
-                '<button aria-label="Slide 6" data-bs-slide-to="5" data-bs-target="#carousel' + i + '" type="button"></button>' +
-              '</div>' +
-              '<div class="carousel-inner h-100 rounded-4">' +
-                '<div class="active carousel-item h-100 rounded-4">' +
-                  '<img class="d-block h-100 w-100" src="' + product['9bfb960a08f96d955136571b244c555d007cf46b'] + '?profile=visuel1">' +
-                '</div>' +
-                '<div class="carousel-item h-100">' +
-                  '<img class="d-block h-100 w-100" src="' + product['7ffff78b28d3373fb4fca0d8b9a3b7a3c068587b'] + '?profile=visuel1">' +
-                '</div>' +
-                '<div class="carousel-item h-100">' +
-                  '<img class="d-block h-100 w-100" src="' + product['a724765a4be4748b733c1d1b3ff3776619100eb9'] + '?profile=visuel1">' +
-                '</div>' +
-                '<div class="carousel-item h-100">' +
-                  '<img class="d-block h-100 w-100" src="' + product['ac1b837baad62b4f520901ce5d61ac3d9bc5f583'] + '?profile=visuel1">' +
-                '</div>' +
-                '<div class="carousel-item h-100">' +
-                  '<img class="d-block h-100 w-100" src="' + product['4af197f76ca4d64a5c87a08244f483d5af6708b9'] + '?profile=visuel1">' +
-                '</div>' +
-                '<div class="carousel-item h-100">' +
-                  '<img class="d-block h-100 w-100" src="' + product['8d2b9a917d094f7a62681cc8cfa18f1bff1eef52'] + '?profile=visuel1">' +
-                '</div>' +
-              '</div>' +
-              '<button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#carousel' + i + '" type="button">' +
-                '<span aria-hidden="true" class="carousel-control-prev-icon"></span>' +
-                '<span class="visually-hidden">Previous</span>' +
-              '</button>' +
-              '<button class="carousel-control-next" data-bs-slide="next" data-bs-target="#carousel' + i + '" type="button">' +
-                '<span aria-hidden="true" class="carousel-control-next-icon"></span>' +
-                '<span class="visually-hidden">Next</span>' +
-              '</button>' +
-            '</div>';
-          }
           const MARKER = L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
               icon: L.icon({
                 iconAnchor: [12.5, 41],
@@ -345,7 +359,7 @@
                   '</span>' +
                 '</span>' +
               '</div><br>' +
-              CAROUSEL(carouselIndex) + '<br>' +
+              getCarousel(product, carouselIndex) + '<br>' +
               '<a href="' + STORE + '" ' +
                  'target="_blank">En savoir plus</a>'
             ).on('click', marker => {
@@ -362,7 +376,7 @@
                    'onmouseover="this.classList.add(\'shadow\');" ' +
                    'style="border: rgba(0, 0, 0, .1) solid 1px; border-radius: 0 16px 16px 0; cursor: pointer; margin: 20px; padding: 10px">' +
                 '<div class="d-flex justify-content-center" ' +
-                     'style="max-width: 37.5%;">' + CAROUSEL(carouselIndex) + '</div>' +
+                     'style="max-width: 37.5%;">' + getCarousel(product, carouselIndex) + '</div>' +
                 '<div class="d-flex flex-column justify-content-around" ' +
                      'onclick="loadMarkers(ADDRESS_MARKERS, \'address\'); ' +
                               'setView(ADDRESS_MARKER_LIST[' + (carouselIndex / 2 - 1) + '], 15);" ' +
@@ -534,7 +548,6 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 
 </html>
