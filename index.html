@@ -20,6 +20,11 @@
         href="https://fonts.gstatic.com"
         rel="preconnect">
 
+  <!-- jquery -->
+  <script crossorigin="anonymous"
+          integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+          src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
   <!-- leaflet -->
   <link crossorigin=""
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -422,31 +427,23 @@
         });
     };
 
-    const loadMarkers = (markers, id) => {
-      MAP.removeLayer(REGION_MARKERS);
-      MAP.removeLayer(ADDRESS_MARKERS);
-      MAP.addLayer(markers);
-      document.getElementById(id).checked = true;
-    };
-
+    /*  Loads a list based on the selected radio input value and the values of two select options.
+     *  This function does not require any parameters as it retrieves the necessary values directly from the DOM.
+     *  It then performs the necessary operations to load the list accordingly.
+     */
     const loadList = _ => {
-      const SELECTED_REGION = document.getElementById('regionSelect').value;
+      const SELECTED_REGION = $('#regionSelect').val();
 
+      let cards = '';
       let regions = {};
       let sortedList = [];
-      let cards = '';
 
       ADDRESS_LIST.forEach(address => {
-        if (regions[address.region] === undefined) {
-          regions[address.region] = 1;
-        } else {
-          regions[address.region]++;
-        }
-        if (document.getElementById('regionSelect').value === "Toutes" || document.getElementById('regionSelect').value === address.region) {
-          sortedList.push(address);
-        }
+        regions[address.region] = regions[address.region] === undefined ? 1 : regions[address.region] + 1;
+        if (['Toutes', address.region].includes($('#regionSelect').val())) sortedList.push(address);
       });
-      switch (document.getElementById('sort').value) {
+
+      switch ($('#sort').val()) {
         case 'totalInvestmentDescending':
           sortedList = sortedList.sort((a, b) => b.totalInvestment - a.totalInvestment);
           break;
@@ -460,18 +457,26 @@
           sortedList = sortedList.sort((a, b) => a.profitability - b.profitability);
           break;
       }
-      sortedList.forEach(address => {
-        cards += address.card;
-      });
+
+      sortedList.forEach(address => cards += address.card);
       cards += '<div style="border-top: rgba(0, 0, 0, .1) solid 1px; padding: 10px;">&sup1; Investissement total, &sup2; Rentabilité brute</div>';
 
-      document.getElementById('counter').innerHTML = sortedList.length;
-      document.getElementById('regionSelect').innerHTML = '<option value="Toutes">Toutes (' + ADDRESS_LIST.length + ')</option>';
-      Object.keys(regions).sort().forEach(region => {
-        document.getElementById('regionSelect').innerHTML += '<option value="' + region + '">' + region + ' (' + regions[region] + ')</option>';
-      });
-      document.getElementById('regionSelect').value = SELECTED_REGION;
-      document.getElementById('list').innerHTML = cards;
+      $('#counter').html(sortedList.length);
+      $('#regionSelect').html('<option value="Toutes">Toutes (' + ADDRESS_LIST.length + ')</option>');
+      Object.keys(regions).sort().forEach(region => $('#regionSelect').append('<option value="' + region + '">' + region + ' (' + regions[region] + ')</option>'));
+      $('#regionSelect').val(SELECTED_REGION);
+      $('#list').html(cards);
+    };
+
+    /*  Removes all existing layers on a map, adds a new layer, and checks the radio input with the provided ID.
+     *    @param {Layer} layer - The layer to be added to the map.
+     *    @param {string} radioInputId - The ID of the radio input to be checked.
+     */
+    const loadMarkers = (layer, radioInputId) => {
+      MAP.removeLayer(REGION_MARKERS);
+      MAP.removeLayer(ADDRESS_MARKERS);
+      MAP.addLayer(layer);
+      $('#' + radioInputId).checked = true;
     };
 
     /*  Calculates and prints the distance and travel time between a given location and a set list of addresses.
@@ -495,7 +500,7 @@
                   Math.round(parseInt(response.routes[0].duration) / 60 / 60) + 'h' + MINUTES.substring(MINUTES.length - 2, MINUTES.length) :
                   Math.round(parseInt(response.routes[0].duration) / 60) + ' min';
 
-              document.getElementById('distance' + address.id).innerHTML = 'à ' + DISTANCE + ' km<br>soit ' + TRAVEL_TIME + ' en voiture';
+              $('#distance' + address.id).html('à ' + DISTANCE + ' km<br>soit ' + TRAVEL_TIME + ' en voiture');
             });
         });
       }
