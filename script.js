@@ -11,7 +11,7 @@ const ADDRESS_LIST = [];
 let carouselIndex = 1;
 let map = '';
 
-/*  ONLOAD
+/*  MAIN
  */
 
 window.onload = _ => {
@@ -27,20 +27,20 @@ window.onload = _ => {
     zoom: 6
   });
 
-  const MINI_MAP = new L.Control.MiniMap(new L.TileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
+    maxZoom: 99
+  }).addTo(map);
+
+  map.setMaxBounds(map.getBounds());
+
+  new L.Control.MiniMap(new L.TileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
     maxZoom: 99
   }), {
     toggleDisplay: true,
     zoomAnimation: true
   }).addTo(map);
-
-  const TILES_LAYER = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
-    maxZoom: 99
-  }).addTo(map);
-
-  map.setMaxBounds(map.getBounds());
 
   fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts')
     .then(response => response.json())
