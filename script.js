@@ -15,7 +15,7 @@ let map = '';
  */
 
 window.onload = _ => {
-  if (jQuery.browser.mobile) {
+  if (jQuery.browser.mobile || window.innerWidth < 1000) {
     $('#cards').css('display', 'none');
     $('#map').css('width', '100%');
   }
@@ -143,6 +143,21 @@ window.onload = _ => {
    *  The user's location is passed as a parameter to the function.
    */
   map.on('locationfound', location => setTravelInformations(location));
+
+  /*  Event listener that triggers when the window is resized. It displays or hides a list of cards
+   *  based on the window size and adjusts the width of a map accordingly.
+   *  This event listener does not require any parameters as it directly interacts with the DOM elements.
+   *  It handles the display and sizing logic to adapt to the resized window.
+   */
+  window.addEventListener('resize', _ => {
+    if (window.innerWidth < 1000) {
+      $('#cards').css('display', 'none');
+      $('#map').css('width', '100%');
+    } else {
+      $('#cards').css('display', 'flex');
+      $('#map').css('width', '62.5%');
+    }
+  });
 }
 
 /*  FUNCTIONS
