@@ -1,26 +1,6 @@
 /*  INITIALIZATIONS
  */
 
-const MAP = L.map('map', {
-  center: [46.227638, 2.213749],
-  maxBoundsViscosity: 1,
-  minZoom: 6,
-  zoom: 6
-});
-
-const MINI_MAP = new L.Control.MiniMap(new L.TileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
-  maxZoom: 99
-}), {
-  toggleDisplay: true,
-  zoomAnimation: true
-}).addTo(MAP);
-
-const TILES_LAYER = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
-  maxZoom: 99
-}).addTo(MAP);
-
 const REGION_MARKERS = L.layerGroup();
 const ADDRESS_MARKERS = L.layerGroup();
 
@@ -29,113 +9,141 @@ const ADDRESS_MARKER_LIST = [];
 const ADDRESS_LIST = [];
 
 let carouselIndex = 1;
+let map = '';
 
-// MAP.locate();
-MAP.setMaxBounds(MAP.getBounds());
-
-/*  MAIN
+/*  ONLOAD
  */
 
-fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts')
-  .then(response => response.json())
-  .then(response => {
-    let regionCount = {};
+window.onload = _ => {
+  if (jQuery.browser.mobile) {
+    $('#cards').css('display', 'none');
+    $('#map').css('width', '100%');
+  }
 
-    response.data.forEach(product => {
-      if (regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] === undefined) {
-        regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] = 0;
-      }
-      regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']]++;
-
-      loadAddress(product);
-    });
-
-    Object.entries(regionCount).forEach(region => {
-      fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(region[0]))
-        .then(response => response.json())
-        .then(response => {
-          let collection = '<a href="https://immocitiz.store/collections/';
-
-          switch (region[0]) {
-            case 'Auvergne-Rhône-Alpes':
-            case 'Bourgogne-Franche-Comté':
-            case 'Grand Est':
-              collection += 'grand-est';
-              break;
-            case 'Bretagne':
-            case 'Centre-Val de Loire':
-            case 'Normandie':
-            case 'Nouvelle-Aquitaine':
-            case 'Pays de la Loire':
-              collection += 'grand-ouest';
-              break;
-            case 'Hauts-de-France':
-              collection += 'hauts-de-france';
-              break;
-            case 'Occitanie':
-            case 'Provence-Alpes-Côte d\'Azur':
-              collection += 'sud';
-              break;
-            case 'Île-de-France':
-              collection += 'ile-de-france';
-              break;
-            default:
-              collection += 'all';
-              break;
-          }
-
-          collection += '" target="_blank">En savoir plus</a>';
-
-          const MARKER =
-            L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
-              icon: L.icon({
-                iconAnchor: [12.5, 41],
-                iconUrl: 'marker-icons/marker-icon-red.png',
-                popupAnchor: [1, -41],
-                shadowUrl: 'marker-icons/marker-shadow.png'
-              }),
-              title: region[0]
-            }).addTo(REGION_MARKERS)
-              .bindPopup(
-                '<div class="fw-bold" ' +
-                     'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
-                '<div class="align-items-center d-flex" ' +
-                     'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
-                  '<svg class="bi bi-shop" ' +
-                       'fill="rgba(0, 0, 0, 1)" ' +
-                       'height="48" ' +
-                       'viewBox="0 0 16 16" ' +
-                       'width="48" ' +
-                       'xmlns="http://www.w3.org/2000/svg">' +
-                    '<path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>' +
-                  '</svg>' +
-                  '<span style="margin-left: 20px;">' +
-                    '<b>' + region[1] + '</b> opportunité(s)<br>' +
-                    '<button class="btn btn-primary" ' +
-                            'onclick="loadMarkers(ADDRESS_MARKERS, \'address\');" ' +
-                            'type="button">Afficher</button>' +
-                  '</span>' +
-                '</div>' +
-                collection
-              )
-              .on('click', marker => setView(marker));
-
-          REGION_MARKER_LIST.push(MARKER);
-        });
-    });
-
-    loadMarkers(REGION_MARKERS, 'region');
-    loadList();
+  map = L.map('map', {
+    center: [46.227638, 2.213749],
+    maxBoundsViscosity: 1,
+    minZoom: 6,
+    zoom: 6
   });
 
-/*  EVENT LISTENERS
- */
+  const MINI_MAP = new L.Control.MiniMap(new L.TileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
+    maxZoom: 99
+  }), {
+    toggleDisplay: true,
+    zoomAnimation: true
+  }).addTo(map);
 
-/*  Event listener that triggers when a user shares their location and executes a function
- *  to calculate and print the distance and travel time between the user's location and a set list of addresses.
- *  The user's location is passed as a parameter to the function.
- */
-MAP.on('locationfound', location => setTravelInformations(location));
+  const TILES_LAYER = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
+    maxZoom: 99
+  }).addTo(map);
+
+  map.setMaxBounds(map.getBounds());
+
+  fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts')
+    .then(response => response.json())
+    .then(response => {
+      let regionCount = {};
+
+      response.data.forEach(product => {
+        if (regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] === undefined) {
+          regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] = 0;
+        }
+        regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']]++;
+
+        loadAddress(product);
+      });
+
+      Object.entries(regionCount).forEach(region => {
+        fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(region[0]))
+          .then(response => response.json())
+          .then(response => {
+            let collection = '<a href="https://immocitiz.store/collections/';
+
+            switch (region[0]) {
+              case 'Auvergne-Rhône-Alpes':
+              case 'Bourgogne-Franche-Comté':
+              case 'Grand Est':
+                collection += 'grand-est';
+                break;
+              case 'Bretagne':
+              case 'Centre-Val de Loire':
+              case 'Normandie':
+              case 'Nouvelle-Aquitaine':
+              case 'Pays de la Loire':
+                collection += 'grand-ouest';
+                break;
+              case 'Hauts-de-France':
+                collection += 'hauts-de-france';
+                break;
+              case 'Occitanie':
+              case 'Provence-Alpes-Côte d\'Azur':
+                collection += 'sud';
+                break;
+              case 'Île-de-France':
+                collection += 'ile-de-france';
+                break;
+              default:
+                collection += 'all';
+                break;
+            }
+
+            collection += '" target="_blank">En savoir plus</a>';
+
+            const MARKER =
+              L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
+                icon: L.icon({
+                  iconAnchor: [12.5, 41],
+                  iconUrl: 'marker-icons/marker-icon-red.png',
+                  popupAnchor: [1, -41],
+                  shadowUrl: 'marker-icons/marker-shadow.png'
+                }),
+                title: region[0]
+              }).addTo(REGION_MARKERS)
+                .bindPopup(
+                  '<div class="fw-bold" ' +
+                       'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
+                  '<div class="align-items-center d-flex" ' +
+                       'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
+                    '<svg class="bi bi-shop" ' +
+                         'fill="rgba(0, 0, 0, 1)" ' +
+                         'height="48" ' +
+                         'viewBox="0 0 16 16" ' +
+                         'width="48" ' +
+                         'xmlns="http://www.w3.org/2000/svg">' +
+                      '<path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>' +
+                    '</svg>' +
+                    '<span style="margin-left: 20px;">' +
+                      '<b>' + region[1] + '</b> opportunité(s)<br>' +
+                      '<button class="btn btn-primary" ' +
+                              'onclick="loadMarkers(ADDRESS_MARKERS, \'address\');" ' +
+                              'type="button">Afficher</button>' +
+                    '</span>' +
+                  '</div>' +
+                  collection
+                )
+                .on('click', marker => setView(marker));
+
+            REGION_MARKER_LIST.push(MARKER);
+          });
+      });
+
+      loadMarkers(REGION_MARKERS, 'region');
+
+      if (!jQuery.browser.mobile) loadList();
+    });
+
+  /*  EVENT LISTENERS
+   */
+
+  /*  Event listener that triggers when a user shares their location and executes a function
+   *  to calculate and print the distance and travel time between the user's location and a set list of addresses.
+   *  The user's location is passed as a parameter to the function.
+   */
+  map.on('locationfound', location => setTravelInformations(location));
+}
 
 /*  FUNCTIONS
  */
@@ -382,9 +390,9 @@ const loadList = _ => {
  *    @param {string} radioInputId - The ID of the radio input to be checked.
  */
 const loadMarkers = (layer, radioInputId) => {
-  MAP.removeLayer(REGION_MARKERS);
-  MAP.removeLayer(ADDRESS_MARKERS);
-  MAP.addLayer(layer);
+  map.removeLayer(REGION_MARKERS);
+  map.removeLayer(ADDRESS_MARKERS);
+  map.addLayer(layer);
   $('#' + radioInputId).prop('checked', true);
 };
 
@@ -434,9 +442,9 @@ const setView = (marker, zoom) => {
                        'Occitanie',
                        'Pays de la Loire',
                        'Provence-Alpes-Côte d\'Azur'].indexOf(marker?.sourceTarget?.options.title) > -1 ? 7.5 : 15;
-  MAP.flyTo(
+  map.flyTo(
     marker?.latlng ? marker?.latlng : marker?._latlng ? marker?._latlng : [46.227638, 2.213749],
-    marker === undefined ? 6 : zoom ? zoom : MAP.getZoom() > MARKER_ZOOM ? MAP.getZoom() : MARKER_ZOOM
+    marker === undefined ? 6 : zoom ? zoom : map.getZoom() > MARKER_ZOOM ? map.getZoom() : MARKER_ZOOM
   );
   if (marker?.options?.title) marker.openPopup();
 };
