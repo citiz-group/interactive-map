@@ -267,12 +267,11 @@ const loadAddress = product => {
       ADDRESS_MARKER_LIST.push(MARKER);
       ADDRESS_LIST.push({
         card:
-          '<div class="bg-white d-flex rounded-4" ' +
+          '<div class="align-items-center bg-white d-flex rounded-4" ' +
                'onmouseleave="this.classList.remove(\'shadow\');" ' +
                'onmouseover="this.classList.add(\'shadow\');" ' +
                'style="border: rgba(0, 0, 0, .1) solid 1px; border-radius: 0 16px 16px 0; cursor: pointer; margin: 20px; padding: 10px">' +
-            '<div class="d-flex justify-content-center" ' +
-                 'style="max-width: 37.5%;">' + getCarousel(product, carouselIndex) + '</div>' +
+            '<div style="max-width: 37.5%;">' + getCarousel(product, carouselIndex) + '</div>' +
             '<div class="d-flex flex-column justify-content-around" ' +
                  'onclick="loadMarkers(ADDRESS_MARKERS, \'address\'); ' +
                           'setView(ADDRESS_MARKER_LIST[' + (carouselIndex / 2 - 1) + '], 15);" ' +
