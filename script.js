@@ -386,7 +386,7 @@ const loadMarkers = (layer, radioInputId) => {
   MAP.removeLayer(REGION_MARKERS);
   MAP.removeLayer(ADDRESS_MARKERS);
   MAP.addLayer(layer);
-  $('#' + radioInputId).checked = true;
+  $('#' + radioInputId).prop('checked', true);
 };
 
 /*  Calculates and prints the distance and travel time between a given location and a set list of addresses.
