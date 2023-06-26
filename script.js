@@ -215,13 +215,13 @@ const loadAddress = product => {
     .then(response => response.json())
     .then(response => {
       const MARKER = L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
-          icon: L.icon({
-            iconAnchor: [12.5, 41],
-            iconUrl: 'marker-icons/marker-icon.png',
-            popupAnchor: [1, -41],
-            shadowUrl: 'marker-icons/marker-shadow.png'
-          }),
-          title: ADDRESS
+        icon: L.icon({
+          iconAnchor: [12.5, 41],
+          iconUrl: 'marker-icons/marker-icon.png',
+          popupAnchor: [1, -41],
+          shadowUrl: 'marker-icons/marker-shadow.png'
+        }),
+        title: ADDRESS
       }).addTo(ADDRESS_MARKERS)
         .bindPopup(
           '<div class="align-items-center d-flex" ' +
