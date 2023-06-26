@@ -171,22 +171,34 @@ const getCarousel = (product, i) => {
       '</div>' +
       '<div class="carousel-inner h-100 rounded-4">' +
         '<div class="active carousel-item h-100 rounded-4">' +
-          '<img class="d-block h-100 w-100" src="' + product['9bfb960a08f96d955136571b244c555d007cf46b'] + '?profile=visuel1">' +
+          '<object class="d-block h-100 w-100" data="' + product['9bfb960a08f96d955136571b244c555d007cf46b'] + '?profile=visuel1" type="image/jpeg">' +
+            '<img class="d-block h-100 w-100" src="https://immocitiz.sirv.com/Logotype-Couleur.png?profile=visuel1">' +
+          '</object>' +
         '</div>' +
         '<div class="carousel-item h-100">' +
-          '<img class="d-block h-100 w-100" src="' + product['7ffff78b28d3373fb4fca0d8b9a3b7a3c068587b'] + '?profile=visuel1">' +
+          '<object class="d-block h-100 w-100" data="' + product['7ffff78b28d3373fb4fca0d8b9a3b7a3c068587b'] + '?profile=visuel1" type="image/jpeg">' +
+            '<img class="d-block h-100 w-100" src="https://immocitiz.sirv.com/Logotype-Couleur.png?profile=visuel1">' +
+          '</object>' +
         '</div>' +
         '<div class="carousel-item h-100">' +
-          '<img class="d-block h-100 w-100" src="' + product['a724765a4be4748b733c1d1b3ff3776619100eb9'] + '?profile=visuel1">' +
+          '<object class="d-block h-100 w-100" data="' + product['a724765a4be4748b733c1d1b3ff3776619100eb9'] + '?profile=visuel1" type="image/jpeg">' +
+            '<img class="d-block h-100 w-100" src="https://immocitiz.sirv.com/Logotype-Couleur.png?profile=visuel1">' +
+          '</object>' +
         '</div>' +
         '<div class="carousel-item h-100">' +
-          '<img class="d-block h-100 w-100" src="' + product['ac1b837baad62b4f520901ce5d61ac3d9bc5f583'] + '?profile=visuel1">' +
+          '<object class="d-block h-100 w-100" data="' + product['ac1b837baad62b4f520901ce5d61ac3d9bc5f583'] + '?profile=visuel1" type="image/jpeg">' +
+            '<img class="d-block h-100 w-100" src="https://immocitiz.sirv.com/Logotype-Couleur.png?profile=visuel1">' +
+          '</object>' +
         '</div>' +
         '<div class="carousel-item h-100">' +
-          '<img class="d-block h-100 w-100" src="' + product['4af197f76ca4d64a5c87a08244f483d5af6708b9'] + '?profile=visuel1">' +
+          '<object class="d-block h-100 w-100" data="' + product['4af197f76ca4d64a5c87a08244f483d5af6708b9'] + '?profile=visuel1" type="image/jpeg">' +
+            '<img class="d-block h-100 w-100" src="https://immocitiz.sirv.com/Logotype-Couleur.png?profile=visuel1">' +
+          '</object>' +
         '</div>' +
         '<div class="carousel-item h-100">' +
-          '<img class="d-block h-100 w-100" src="' + product['8d2b9a917d094f7a62681cc8cfa18f1bff1eef52'] + '?profile=visuel1">' +
+          '<object class="d-block h-100 w-100" data="' + product['8d2b9a917d094f7a62681cc8cfa18f1bff1eef52'] + '?profile=visuel1" type="image/jpeg">' +
+            '<img class="d-block h-100 w-100" src="https://immocitiz.sirv.com/Logotype-Couleur.png?profile=visuel1">' +
+          '</object>' +
         '</div>' +
       '</div>' +
       '<button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#carousel' + i + '" type="button">' +
