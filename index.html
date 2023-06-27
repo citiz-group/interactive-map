@@ -5,7 +5,10 @@
       lang="en">
 
 <head>
+  <link href="https://immocitiz.sirv.com/Logotype-Couleur.png"
+        rel="icon">
   <meta charset="utf-8">
+  <title>Carte intéractive - Immocitiz</title>
 
   <!-- bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -66,12 +69,12 @@
     <input checked
            id="region"
            name="filter"
-           onclick="loadMarkers(REGION_MARKERS, 'region');"
+           onclick="loadMarkers(REGIONS_LAYER, 'region');"
            type="radio">
     <label for="region">&nbsp;région&nbsp;</label>
     <input id="address"
            name="filter"
-           onclick="loadMarkers(ADDRESS_MARKERS, 'address');"
+           onclick="loadMarkers(ADDRESSES_LAYER, 'address');"
            type="radio">
     <label for="address">&nbsp;adresse</label>
   </form>
@@ -88,7 +91,7 @@
             <span>Région(s) :&nbsp;</span>
             <select id="regionSelect"
                     onchange="loadList();
-                              loadMarkers(REGION_MARKERS, 'region');
+                              loadMarkers(REGIONS_LAYER, 'region');
                               setView(REGION_MARKER_LIST.find(marker => marker.options.title === this.value), 7.5);">
               <option value="Toutes">Toutes (0)</option>
             </select>

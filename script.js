@@ -1,8 +1,8 @@
 /*  INITIALIZATIONS
  */
 
-const REGION_MARKERS = L.layerGroup();
-const ADDRESS_MARKERS = L.layerGroup();
+const REGIONS_LAYER = L.layerGroup();
+const ADDRESSES_LAYER = L.layerGroup();
 
 const REGION_MARKER_LIST = [];
 const ADDRESS_MARKER_LIST = [];
@@ -105,24 +105,24 @@ window.onload = _ => {
                       shadowUrl: 'marker-icons/marker-shadow.png'
                     }),
                     title: region[0]
-                  }).addTo(REGION_MARKERS)
+                  }).addTo(REGIONS_LAYER)
                     .bindPopup(
                       '<div class="fw-bold" ' +
-                          'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
+                           'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
                       '<div class="align-items-center d-flex" ' +
-                          'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
+                           'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
                         '<svg class="bi bi-shop" ' +
-                            'fill="rgba(0, 0, 0, 1)" ' +
-                            'height="48" ' +
-                            'viewBox="0 0 16 16" ' +
-                            'width="48" ' +
-                            'xmlns="http://www.w3.org/2000/svg">' +
+                             'fill="rgba(0, 0, 0, 1)" ' +
+                             'height="48" ' +
+                             'viewBox="0 0 16 16" ' +
+                             'width="48" ' +
+                             'xmlns="http://www.w3.org/2000/svg">' +
                           '<path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>' +
                         '</svg>' +
                         '<span style="margin-left: 20px;">' +
                           '<b>' + region[1] + '</b> opportunité(s)<br>' +
                           '<button class="btn btn-primary" ' +
-                                  'onclick="loadMarkers(ADDRESS_MARKERS, \'address\');" ' +
+                                  'onclick="loadMarkers(ADDRESSES_LAYER, \'address\');" ' +
                                   'type="button">Afficher</button>' +
                         '</span>' +
                       '</div>' +
@@ -134,13 +134,13 @@ window.onload = _ => {
 
                 regions.features.forEach(feature => {
                   if (feature.properties.nom === region[0]) {
-                    feature.geometry.coordinates.forEach(coordinate => {
+                    feature.geometry.coordinates.forEach(coordinates => {
                       switch (feature.geometry.type) {
                         case 'MultiPolygon':
-                          coordinate.forEach(aCoordinate => L.polygon(aCoordinate.map(lngLat => [lngLat[1], lngLat[0]]), { color: 'indianred' }).addTo(map));
+                          coordinates.forEach(coordinate => getPolygon(coordinate, MARKER));
                           break;
                         case 'Polygon':
-                          L.polygon(coordinate.map(lngLat => [lngLat[1], lngLat[0]]), { color: 'indianred' }).addTo(map);
+                          getPolygon(coordinates, MARKER);
                           break;
                       }
                     });
@@ -149,7 +149,7 @@ window.onload = _ => {
               });
           });
 
-          loadMarkers(REGION_MARKERS, 'region');
+          loadMarkers(REGIONS_LAYER, 'region');
 
           if (!jQuery.browser.mobile) loadList();
         });
@@ -247,6 +247,19 @@ const getCarousel = (product, i) => {
     '</div>';
 }
 
+/*  Creates a clickable and hoverable red polygon on the map based on the provided array of coordinates
+ *  and a marker object. The polygon is associated with the marker and displayed on the map.
+ *    @param {Array} coordinates - An array of coordinates representing the polygon vertices.
+ *    @param {object} marker - The marker object associated with the polygon.
+ */
+const getPolygon = (coordinates, marker) => {
+  L.polygon(coordinates.map(lngLat => [lngLat[1], lngLat[0]]), { color: 'indianred' })
+    .addTo(REGIONS_LAYER)
+    .on('click', _ => setView(marker, 7.5))
+    .on('mouseout', polygon => polygon.target.setStyle({ color: 'indianred' }))
+    .on('mouseover', polygon => polygon.target.setStyle({ color: 'red' }));
+};
+
 /*  Creates a marker, its popup, and its card based on the provided product object,
  *  adds them to their respective sets of markers, popups, and cards, and loads the updated list.
  *    @param {object} product - The product object containing information about the marker, popup, and card.
@@ -274,7 +287,7 @@ const loadAddress = product => {
           shadowUrl: 'marker-icons/marker-shadow.png'
         }),
         title: ADDRESS
-      }).addTo(ADDRESS_MARKERS)
+      }).addTo(ADDRESSES_LAYER)
         .bindPopup(
           '<div class="align-items-center d-flex" ' +
                'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; padding: 6.5px 0 13px 0;">' +
@@ -333,7 +346,7 @@ const loadAddress = product => {
                'style="border: rgba(0, 0, 0, .1) solid 1px; border-radius: 0 16px 16px 0; cursor: pointer; margin: 20px; padding: 10px">' +
             '<div style="max-width: 37.5%;">' + getCarousel(product, carouselIndex) + '</div>' +
             '<div class="d-flex flex-column justify-content-around" ' +
-                 'onclick="loadMarkers(ADDRESS_MARKERS, \'address\'); ' +
+                 'onclick="loadMarkers(ADDRESSES_LAYER, \'address\'); ' +
                           'setView(ADDRESS_MARKER_LIST[' + (carouselIndex / 2 - 1) + '], 15);" ' +
                  'style="padding: 20px; width: 62.5%;">' +
               '<div class="d-flex justify-content-between">' +
@@ -442,8 +455,8 @@ const loadList = _ => {
  *    @param {string} radioInputId - The ID of the radio input to be checked.
  */
 const loadMarkers = (layer, radioInputId) => {
-  map.removeLayer(REGION_MARKERS);
-  map.removeLayer(ADDRESS_MARKERS);
+  map.removeLayer(REGIONS_LAYER);
+  map.removeLayer(ADDRESSES_LAYER);
   map.addLayer(layer);
   $('#' + radioInputId).prop('checked', true);
 };
