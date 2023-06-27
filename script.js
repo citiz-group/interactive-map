@@ -22,6 +22,7 @@ window.onload = _ => {
 
   map = L.map('map', {
     center: [46.227638, 2.213749],
+    loadingControl: true,
     maxBoundsViscosity: 1,
     minZoom: 6,
     zoom: 6
