@@ -57,11 +57,28 @@ window.onload = _ => {
         loadAddress(product);
       });
 
+      const REGION_CAPITALS = {
+        'Auvergne-Rhône-Alpes': 'Lyon',
+        'Bourgogne-Franche-Comté': 'Dijon',
+        'Bretagne': 'Rennes',
+        'Centre-Val de Loire': 'Orléans',
+        'Corse': 'Ajaccio',
+        'Grand Est': 'Strasbourg',
+        'Grand Ouest': 'Nantes',
+        'Hauts-de-France': 'Lille',
+        'Île-de-France': 'Paris',
+        'Normandie': 'Rouen',
+        'Nouvelle-Aquitaine': 'Bordeaux',
+        'Occitanie': 'Toulouse',
+        'Pays de la Loire': 'Nantes',
+        'Provence-Alpes-Côte d\'Azur': 'Marseille',
+      };
+
       fetch('https://france-geojson.gregoiredavid.fr/repo/regions.geojson')
         .then(response => response.json())
         .then(regions => {
           Object.entries(regionCount).forEach(region => {
-            fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(region[0]))
+            fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(REGION_CAPITALS[region[0]]))
               .then(response => response.json())
               .then(response => {
                 let collection = '<a href="https://immocitiz.store/collections/';
