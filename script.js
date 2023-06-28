@@ -252,50 +252,96 @@ const getPolygon = (coordinates, marker) => {
  *    @param {object} product - The product object containing information about the marker, popup, and card.
  */
 const loadAddress = product => {
-  const ADDRESS =
-    product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] +
-    ' ' +
-    product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() +
-    ' (' +
-    product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] +
-    ')';
   const PROFITABILITY = product['a2d1486abfd1f662fb387a34b0c590f4fd517ab8'].toFixed(2);
   const STORE = product['3a76ea85df1fa8b1d1885af9a1c72c9699b7dca4'];
   const TOTAL_INVESTMENT = product['6a494ae5c460f7cb49a521620bc0359fb3018c5f'].toFixed();
+  const MARKER = L.marker([product['6a3b126f8efbc800d297b61cff988a5f25ba33cf'], product['03078d486838193ebee4b1467af2c4056974d237']], {
+    icon: L.icon({
+      iconAnchor: [12.5, 41],
+      iconUrl: '.png/marker-icon.png',
+      popupAnchor: [1, -41],
+      shadowUrl: '.png/marker-shadow.png'
+    }),
+    title: product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] + ' ' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() + ' (' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] + ')'
+  }).addTo(ADDRESSES_LAYER)
+    .bindPopup(
+      '<div class="align-items-center d-flex" ' +
+           'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; padding: 6.5px 0 13px 0;">' +
+        '<div style="margin-right: 10px;">' +
+          '<svg class="bi bi-geo" ' +
+               'fill="rgba(0, 0, 0, 1)" ' +
+               'height="24" ' +
+               'viewBox="0 0 16 16" ' +
+               'width="24" ' +
+               'xmlns="http://www.w3.org/2000/svg">' +
+            '<path d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" ' +
+                  'fill-rule="evenodd"/>' +
+          '</svg>' +
+        '</div>' +
+        '<div>' +
+          '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] + '</span><br>' +
+          '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() + ' (' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] + ')</span>' +
+        '</div>' +
+      '</div><br>' +
+      '<div>' +
+        '<span class="align-items-around d-flex">' +
+          '<span class="align-items-center d-flex">' +
+            '<svg class="bi bi-wallet2" ' +
+                 'fill="rgba(0, 0, 0, 1)" ' +
+                 'height="24" ' +
+                 'viewBox="0 0 16 16" ' +
+                 'width="24" ' +
+                 'xmlns="http://www.w3.org/2000/svg">' +
+              '<path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>' +
+            '</svg>' +
+            '&nbsp;&nbsp;<b>' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>&nbsp;&sup1;' +
+          '</span>' +
+          '<span style="width: 100px;"></span>' +
+          '<span class="align-items-center d-flex">' +
+            '<svg class="bi bi-graph-up-arrow" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
+              '<path d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z" ' +
+                    'fill-rule="evenodd"/>' +
+            '</svg>' +
+            '&nbsp;&nbsp;<b>' + PROFITABILITY.toString().replace('.', ',') + ' %</b>&nbsp;&sup2;' +
+          '</span>' +
+        '</span>' +
+      '</div><br>' +
+      getCarousel(product, carouselIndex) + '<br>' +
+      '<a href="' + STORE + '" ' +
+         'target="_blank">En savoir plus</a>'
+    ).on('click', marker => setView(marker));
 
-  fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(ADDRESS))
-    .then(response => response.json())
-    .then(response => {
-      const MARKER = L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
-        icon: L.icon({
-          iconAnchor: [12.5, 41],
-          iconUrl: '.png/marker-icon.png',
-          popupAnchor: [1, -41],
-          shadowUrl: '.png/marker-shadow.png'
-        }),
-        title: ADDRESS
-      }).addTo(ADDRESSES_LAYER)
-        .bindPopup(
-          '<div class="align-items-center d-flex" ' +
-               'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; padding: 6.5px 0 13px 0;">' +
-            '<div style="margin-right: 10px;">' +
-              '<svg class="bi bi-geo" ' +
-                   'fill="rgba(0, 0, 0, 1)" ' +
-                   'height="24" ' +
-                   'viewBox="0 0 16 16" ' +
-                   'width="24" ' +
-                   'xmlns="http://www.w3.org/2000/svg">' +
-                '<path d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" ' +
-                      'fill-rule="evenodd"/>' +
-              '</svg>' +
+  carouselIndex++;
+
+  ADDRESS_MARKER_LIST.push(MARKER);
+  ADDRESS_LIST.push({
+    card:
+      '<div class="bg-white d-flex rounded-4" ' +
+           'onmouseleave="this.classList.remove(\'shadow\');" ' +
+           'onmouseover="this.classList.add(\'shadow\');" ' +
+           'style="border: rgba(0, 0, 0, .1) solid 1px; border-radius: 0 16px 16px 0; cursor: pointer; margin: 20px; padding: 10px">' +
+        '<div style="max-width: 37.5%;">' + getCarousel(product, carouselIndex) + '</div>' +
+        '<div class="d-flex flex-column justify-content-around" ' +
+             'onclick="loadMarkers(ADDRESSES_LAYER, \'address\'); ' +
+                      'setView(ADDRESS_MARKER_LIST[' + (carouselIndex / 2 - 1) + '], 15);" ' +
+             'style="padding: 20px; width: 62.5%;">' +
+          '<div class="d-flex justify-content-between">' +
+            '<div class="align-items-center d-flex">' +
+              '<div style="margin-right: 10px;">' +
+                '<svg class="bi bi-geo" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
+                  '<path d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" ' +
+                        'fill-rule="evenodd"/>' +
+                '</svg>' +
+              '</div>' +
+              '<div>' +
+                '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] + '</span><br>' +
+                '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() + ' (' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] + ')</span>' +
+              '</div>' +
             '</div>' +
-            '<div>' +
-              '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] + '</span><br>' +
-              '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() + ' (' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] + ')</span>' +
-            '</div>' +
-          '</div><br>' +
+            '<div class="text-end text-secondary" id="distance' + carouselIndex + '"></div>' +
+          '</div>' +
           '<div>' +
-            '<span class="align-items-around d-flex">' +
+            '<span class="d-flex justify-content-between">' +
               '<span class="align-items-center d-flex">' +
                 '<svg class="bi bi-wallet2" ' +
                      'fill="rgba(0, 0, 0, 1)" ' +
@@ -307,93 +353,35 @@ const loadAddress = product => {
                 '</svg>' +
                 '&nbsp;&nbsp;<b>' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>&nbsp;&sup1;' +
               '</span>' +
-              '<span style="width: 100px;"></span>' +
               '<span class="align-items-center d-flex">' +
-                '<svg class="bi bi-graph-up-arrow" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
+                '<svg class="bi bi-graph-up-arrow" ' +
+                     'fill="rgba(0, 0, 0, 1)" ' +
+                     'height="24" ' +
+                     'viewBox="0 0 16 16" ' +
+                     'width="24" ' +
+                     'xmlns="http://www.w3.org/2000/svg">' +
                   '<path d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z" ' +
                         'fill-rule="evenodd"/>' +
                 '</svg>' +
                 '&nbsp;&nbsp;<b>' + PROFITABILITY.toString().replace('.', ',') + ' %</b>&nbsp;&sup2;' +
               '</span>' +
             '</span>' +
-          '</div><br>' +
-          getCarousel(product, carouselIndex) + '<br>' +
+          '</div>' +
           '<a href="' + STORE + '" ' +
-             'target="_blank">En savoir plus</a>'
-        ).on('click', marker => setView(marker));
+             'target="_blank">En savoir plus</a>' +
+        '</div>' +
+      '</div>',
+    id: carouselIndex,
+    latitude: product['6a3b126f8efbc800d297b61cff988a5f25ba33cf'],
+    longitude: product['03078d486838193ebee4b1467af2c4056974d237'],
+    profitability: PROFITABILITY,
+    region: product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1'],
+    totalInvestment: TOTAL_INVESTMENT
+  });
 
-      carouselIndex++;
+  carouselIndex++;
 
-      ADDRESS_MARKER_LIST.push(MARKER);
-      ADDRESS_LIST.push({
-        card:
-          '<div class="bg-white d-flex rounded-4" ' +
-               'onmouseleave="this.classList.remove(\'shadow\');" ' +
-               'onmouseover="this.classList.add(\'shadow\');" ' +
-               'style="border: rgba(0, 0, 0, .1) solid 1px; border-radius: 0 16px 16px 0; cursor: pointer; margin: 20px; padding: 10px">' +
-            '<div style="max-width: 37.5%;">' + getCarousel(product, carouselIndex) + '</div>' +
-            '<div class="d-flex flex-column justify-content-around" ' +
-                 'onclick="loadMarkers(ADDRESSES_LAYER, \'address\'); ' +
-                          'setView(ADDRESS_MARKER_LIST[' + (carouselIndex / 2 - 1) + '], 15);" ' +
-                 'style="padding: 20px; width: 62.5%;">' +
-              '<div class="d-flex justify-content-between">' +
-                '<div class="align-items-center d-flex">' +
-                  '<div style="margin-right: 10px;">' +
-                    '<svg class="bi bi-geo" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
-                      '<path d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" ' +
-                            'fill-rule="evenodd"/>' +
-                    '</svg>' +
-                  '</div>' +
-                  '<div>' +
-                    '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] + '</span><br>' +
-                    '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() + ' (' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] + ')</span>' +
-                  '</div>' +
-                '</div>' +
-                '<div class="text-end text-secondary" id="distance' + carouselIndex + '"></div>' +
-              '</div>' +
-              '<div>' +
-                '<span class="d-flex justify-content-between">' +
-                  '<span class="align-items-center d-flex">' +
-                    '<svg class="bi bi-wallet2" ' +
-                         'fill="rgba(0, 0, 0, 1)" ' +
-                         'height="24" ' +
-                         'viewBox="0 0 16 16" ' +
-                         'width="24" ' +
-                         'xmlns="http://www.w3.org/2000/svg">' +
-                      '<path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>' +
-                    '</svg>' +
-                    '&nbsp;&nbsp;<b>' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>&nbsp;&sup1;' +
-                  '</span>' +
-                  '<span class="align-items-center d-flex">' +
-                    '<svg class="bi bi-graph-up-arrow" ' +
-                         'fill="rgba(0, 0, 0, 1)" ' +
-                         'height="24" ' +
-                         'viewBox="0 0 16 16" ' +
-                         'width="24" ' +
-                         'xmlns="http://www.w3.org/2000/svg">' +
-                      '<path d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z" ' +
-                            'fill-rule="evenodd"/>' +
-                    '</svg>' +
-                    '&nbsp;&nbsp;<b>' + PROFITABILITY.toString().replace('.', ',') + ' %</b>&nbsp;&sup2;' +
-                  '</span>' +
-                '</span>' +
-              '</div>' +
-              '<a href="' + STORE + '" ' +
-                 'target="_blank">En savoir plus</a>' +
-            '</div>' +
-          '</div>',
-        id: carouselIndex,
-        latitude: response.results[0].geometry.location.lat,
-        longitude: response.results[0].geometry.location.lng,
-        profitability: PROFITABILITY,
-        region: product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1'],
-        totalInvestment: TOTAL_INVESTMENT
-      });
-
-      carouselIndex++;
-
-      loadList();
-    });
+  loadList();
 };
 
 /*  Loads a list based on the selected radio input value and the values of two select options.
