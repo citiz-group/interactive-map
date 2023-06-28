@@ -47,89 +47,85 @@ window.onload = _ => {
     zoomAnimation: true   // Sets whether the minimap should have an animated zoom.
   }).addTo(map);
 
-  fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts')
-    .then(response => response.json())
-    .then(response => {
-      let regionCount = {};
+  fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts').then(r => r.json()).then(response => {
+    let regionCount = {};
 
-      response.data.forEach(product => {
-        if (regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] === undefined) {
-          regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] = 0;
-        }
-        regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']]++;
+    response.data.forEach(product => {
+      if (regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] === undefined) {
+        regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] = 0;
+      }
+      regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']]++;
 
-        loadAddress(product);
+      loadAddress(product);
+    });
+
+    const REGION_CAPITALS = {
+      'Auvergne-Rhône-Alpes': [[45.764043, 4.835659], 'grand-est'],   // Lyon
+      'Bourgogne-Franche-Comté': [[47.322047, 5.04148], 'grand-est'], // Dijon
+      'Bretagne': [[48.117266, -1.6777926], 'grand-ouest'],           // Rennes
+      'Centre-Val de Loire': [[47.902964, 1.909251], 'grand-ouest'],  // Orléans
+      'Corse': [[41.919229, 8.738635], 'all'],                        // Ajaccio
+      'Grand Est': [[48.5734053, 7.752111299999999], 'grand-est'],    // Strasbourg
+      'Grand Ouest': [[47.218371, -1.553621], 'grand-ouest'],         // Nantes
+      'Hauts-de-France': [[50.62925, 3.057256], 'hauts-de-france'],   // Lille
+      'Île-de-France': [[48.856614, 2.3522219], 'ile-de-france'],     // Paris
+      'Normandie': [[49.44323199999999, 1.099971], 'grand-ouest'],    // Rouen
+      'Nouvelle-Aquitaine': [[44.837789, -0.57918], 'grand-ouest'],   // Bordeaux
+      'Occitanie': [[43.604652, 1.444209], 'sud'],                    // Toulouse
+      'Pays de la Loire': [[47.218371, -1.553621], 'grand-ouest'],    // Nantes
+      'Provence-Alpes-Côte d\'Azur': [[43.296482, 5.36978], 'sud'],   // Marseille
+    };
+
+    fetch('regions.geojson').then(r => r.json()).then(regions => {
+      Object.entries(regionCount).forEach(region => {
+        const MARKER =
+          L.marker(REGION_CAPITALS[region[0]][0], {
+            icon: L.icon({
+              iconAnchor: [12.5, 41],
+              iconUrl: '.png/marker-icon-red.png',
+              popupAnchor: [1, -41],
+              shadowUrl: '.png/marker-shadow.png'
+            }),
+            title: region[0]
+          }).addTo(REGIONS_LAYER)
+            .bindPopup(
+              '<div class="fw-bold" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
+              '<div class="align-items-center d-flex" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
+                '<svg class="bi bi-shop" fill="rgba(0, 0, 0, 1)" height="48" viewBox="0 0 16 16" width="48" xmlns="http://www.w3.org/2000/svg">' +
+                  '<path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>' +
+                '</svg>' +
+                '<span style="margin-left: 20px;">' +
+                  '<b>' + region[1] + '</b> opportunité(s)<br>' +
+                  '<button class="btn btn-primary" onclick="loadMarkers(ADDRESSES_LAYER, \'address\');" type="button">Afficher</button>' +
+                '</span>' +
+              '</div>' +
+              '<a href="https://immocitiz.store/collections/' + REGION_CAPITALS[region[0]][1] + '" target="_blank">En savoir plus</a>'
+            )
+            .on('click', marker => setView(marker));
+
+        REGION_MARKER_LIST.push(MARKER);
+
+        regions.features.forEach(feature => {
+          if (feature.properties.nom === region[0]) {
+            feature.geometry.coordinates.forEach(coordinates => {
+              switch (feature.geometry.type) {
+                case 'MultiPolygon':
+                  coordinates.forEach(coordinate => getPolygon(coordinate, MARKER));
+                  break;
+                case 'Polygon':
+                  getPolygon(coordinates, MARKER);
+                  break;
+              }
+            });
+          };
+        });
       });
 
-      const REGION_CAPITALS = {
-        'Auvergne-Rhône-Alpes': [[45.764043, 4.835659], 'grand-est'],   // Lyon
-        'Bourgogne-Franche-Comté': [[47.322047, 5.04148], 'grand-est'], // Dijon
-        'Bretagne': [[48.117266, -1.6777926], 'grand-ouest'],           // Rennes
-        'Centre-Val de Loire': [[47.902964, 1.909251], 'grand-ouest'],  // Orléans
-        'Corse': [[41.919229, 8.738635], 'all'],                        // Ajaccio
-        'Grand Est': [[48.5734053, 7.752111299999999], 'grand-est'],    // Strasbourg
-        'Grand Ouest': [[47.218371, -1.553621], 'grand-ouest'],         // Nantes
-        'Hauts-de-France': [[50.62925, 3.057256], 'hauts-de-france'],   // Lille
-        'Île-de-France': [[48.856614, 2.3522219], 'ile-de-france'],     // Paris
-        'Normandie': [[49.44323199999999, 1.099971], 'grand-ouest'],    // Rouen
-        'Nouvelle-Aquitaine': [[44.837789, -0.57918], 'grand-ouest'],   // Bordeaux
-        'Occitanie': [[43.604652, 1.444209], 'sud'],                    // Toulouse
-        'Pays de la Loire': [[47.218371, -1.553621], 'grand-ouest'],    // Nantes
-        'Provence-Alpes-Côte d\'Azur': [[43.296482, 5.36978], 'sud'],   // Marseille
-      };
+      loadMarkers(REGIONS_LAYER, 'region');
 
-      fetch('regions.geojson')
-        .then(response => response.json())
-        .then(regions => {
-          Object.entries(regionCount).forEach(region => {
-            const MARKER =
-              L.marker(REGION_CAPITALS[region[0]][0], {
-                icon: L.icon({
-                  iconAnchor: [12.5, 41],
-                  iconUrl: '.png/marker-icon-red.png',
-                  popupAnchor: [1, -41],
-                  shadowUrl: '.png/marker-shadow.png'
-                }),
-                title: region[0]
-              }).addTo(REGIONS_LAYER)
-                .bindPopup(
-                  '<div class="fw-bold" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
-                  '<div class="align-items-center d-flex" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
-                    '<svg class="bi bi-shop" fill="rgba(0, 0, 0, 1)" height="48" viewBox="0 0 16 16" width="48" xmlns="http://www.w3.org/2000/svg">' +
-                      '<path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>' +
-                    '</svg>' +
-                    '<span style="margin-left: 20px;">' +
-                      '<b>' + region[1] + '</b> opportunité(s)<br>' +
-                      '<button class="btn btn-primary" onclick="loadMarkers(ADDRESSES_LAYER, \'address\');" type="button">Afficher</button>' +
-                    '</span>' +
-                  '</div>' +
-                  '<a href="https://immocitiz.store/collections/' + REGION_CAPITALS[region[0]][1] + '" target="_blank">En savoir plus</a>'
-                )
-                .on('click', marker => setView(marker));
-
-            REGION_MARKER_LIST.push(MARKER);
-
-            regions.features.forEach(feature => {
-              if (feature.properties.nom === region[0]) {
-                feature.geometry.coordinates.forEach(coordinates => {
-                  switch (feature.geometry.type) {
-                    case 'MultiPolygon':
-                      coordinates.forEach(coordinate => getPolygon(coordinate, MARKER));
-                      break;
-                    case 'Polygon':
-                      getPolygon(coordinates, MARKER);
-                      break;
-                  }
-                });
-              };
-            });
-          });
-
-          loadMarkers(REGIONS_LAYER, 'region');
-
-          if (!jQuery.browser.mobile) loadList();
-        });
+      if (!jQuery.browser.mobile) loadList();
     });
+  });
 
   /*  EVENT LISTENERS
    */
