@@ -1,12 +1,14 @@
 /*  INITIALIZATIONS
  */
 
-const REGIONS_LAYER = L.layerGroup();
+/* Used to group several layers and handle them as one.
+ */
 const ADDRESSES_LAYER = L.layerGroup();
+const REGIONS_LAYER = L.layerGroup();
 
-const REGION_MARKER_LIST = [];
-const ADDRESS_MARKER_LIST = [];
 const ADDRESS_LIST = [];
+const ADDRESS_MARKER_LIST = [];
+const REGION_MARKER_LIST = [];
 
 let carouselIndex = 1;
 let map = '';
@@ -21,26 +23,28 @@ window.onload = _ => {
   }
 
   map = L.map('map', {
-    center: [46.227638, 2.213749],
-    loadingControl: true,
-    maxBoundsViscosity: 1,
-    minZoom: 6,
-    zoom: 6
+    center: [46.227638, 2.213749],  // Initial geographic center of the map.
+    loadingControl: true,           // Leaflet.loading is a simple loading control for Leaflet.
+    maxBoundsViscosity: 1,          // If maxBounds is set, this option will control how solid the bounds are when dragging the map around.
+    minZoom: 6,                     // Minimum zoom level of the map.
+    zoom: 6                         // Initial map zoom level.
   });
 
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
-    maxZoom: 99
+    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',  // String to be shown in the attribution control, e.g. "© OpenStreetMap contributors".
+    maxZoom: 99                                                                           // The maximum zoom level up to which this layer will be displayed (inclusive).
   }).addTo(map);
 
+  /* Restricts the map view to the given bounds (see the maxBounds option).
+   */
   map.setMaxBounds(map.getBounds());
 
   new L.Control.MiniMap(new L.TileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',
-    maxZoom: 99
+    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',  // String to be shown in the attribution control, e.g. "© OpenStreetMap contributors".
+    maxZoom: 99                                                                           // The maximum zoom level up to which this layer will be displayed (inclusive).
   }), {
-    toggleDisplay: true,
-    zoomAnimation: true
+    toggleDisplay: true,  // Sets whether the minimap should have a button to minimise it.
+    zoomAnimation: true   // Sets whether the minimap should have an animated zoom.
   }).addTo(map);
 
   fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts')
@@ -58,112 +62,76 @@ window.onload = _ => {
       });
 
       const REGION_CAPITALS = {
-        'Auvergne-Rhône-Alpes': 'Lyon',
-        'Bourgogne-Franche-Comté': 'Dijon',
-        'Bretagne': 'Rennes',
-        'Centre-Val de Loire': 'Orléans',
-        'Corse': 'Ajaccio',
-        'Grand Est': 'Strasbourg',
-        'Grand Ouest': 'Nantes',
-        'Hauts-de-France': 'Lille',
-        'Île-de-France': 'Paris',
-        'Normandie': 'Rouen',
-        'Nouvelle-Aquitaine': 'Bordeaux',
-        'Occitanie': 'Toulouse',
-        'Pays de la Loire': 'Nantes',
-        'Provence-Alpes-Côte d\'Azur': 'Marseille',
+        'Auvergne-Rhône-Alpes': [[45.764043, 4.835659], 'grand-est'],   // Lyon
+        'Bourgogne-Franche-Comté': [[47.322047, 5.04148], 'grand-est'], // Dijon
+        'Bretagne': [[48.117266, -1.6777926], 'grand-ouest'],           // Rennes
+        'Centre-Val de Loire': [[47.902964, 1.909251], 'grand-ouest'],  // Orléans
+        'Corse': [[41.919229, 8.738635], 'all'],                        // Ajaccio
+        'Grand Est': [[48.5734053, 7.752111299999999], 'grand-est'],    // Strasbourg
+        'Grand Ouest': [[47.218371, -1.553621], 'grand-ouest'],         // Nantes
+        'Hauts-de-France': [[50.62925, 3.057256], 'hauts-de-france'],   // Lille
+        'Île-de-France': [[48.856614, 2.3522219], 'ile-de-france'],     // Paris
+        'Normandie': [[49.44323199999999, 1.099971], 'grand-ouest'],    // Rouen
+        'Nouvelle-Aquitaine': [[44.837789, -0.57918], 'grand-ouest'],   // Bordeaux
+        'Occitanie': [[43.604652, 1.444209], 'sud'],                    // Toulouse
+        'Pays de la Loire': [[47.218371, -1.553621], 'grand-ouest'],    // Nantes
+        'Provence-Alpes-Côte d\'Azur': [[43.296482, 5.36978], 'sud'],   // Marseille
       };
 
-      fetch('https://france-geojson.gregoiredavid.fr/repo/regions.geojson')
+      fetch('regions.geojson')
         .then(response => response.json())
         .then(regions => {
           Object.entries(regionCount).forEach(region => {
-            fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=geocode&address=' + encodeURI(REGION_CAPITALS[region[0]]))
-              .then(response => response.json())
-              .then(response => {
-                let collection = '<a href="https://immocitiz.store/collections/';
+            const MARKER =
+              L.marker(REGION_CAPITALS[region[0]][0], {
+                icon: L.icon({
+                  iconAnchor: [12.5, 41],
+                  iconUrl: '.png/marker-icon-red.png',
+                  popupAnchor: [1, -41],
+                  shadowUrl: '.png/marker-shadow.png'
+                }),
+                title: region[0]
+              }).addTo(REGIONS_LAYER)
+                .bindPopup(
+                  '<div class="fw-bold" ' +
+                       'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
+                  '<div class="align-items-center d-flex" ' +
+                       'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
+                    '<svg class="bi bi-shop" ' +
+                         'fill="rgba(0, 0, 0, 1)" ' +
+                         'height="48" ' +
+                         'viewBox="0 0 16 16" ' +
+                         'width="48" ' +
+                         'xmlns="http://www.w3.org/2000/svg">' +
+                      '<path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>' +
+                    '</svg>' +
+                    '<span style="margin-left: 20px;">' +
+                      '<b>' + region[1] + '</b> opportunité(s)<br>' +
+                      '<button class="btn btn-primary" ' +
+                              'onclick="loadMarkers(ADDRESSES_LAYER, \'address\');" ' +
+                              'type="button">Afficher</button>' +
+                    '</span>' +
+                  '</div>' +
+                  '<a href="https://immocitiz.store/collections/' + REGION_CAPITALS[region[0]][1] + '" target="_blank">En savoir plus</a>'
+                )
+                .on('click', marker => setView(marker));
 
-                switch (region[0]) {
-                  case 'Auvergne-Rhône-Alpes':
-                  case 'Bourgogne-Franche-Comté':
-                  case 'Grand Est':
-                    collection += 'grand-est';
-                    break;
-                  case 'Bretagne':
-                  case 'Centre-Val de Loire':
-                  case 'Normandie':
-                  case 'Nouvelle-Aquitaine':
-                  case 'Pays de la Loire':
-                    collection += 'grand-ouest';
-                    break;
-                  case 'Hauts-de-France':
-                    collection += 'hauts-de-france';
-                    break;
-                  case 'Occitanie':
-                  case 'Provence-Alpes-Côte d\'Azur':
-                    collection += 'sud';
-                    break;
-                  case 'Île-de-France':
-                    collection += 'ile-de-france';
-                    break;
-                  default:
-                    collection += 'all';
-                    break;
-                }
+            REGION_MARKER_LIST.push(MARKER);
 
-                collection += '" target="_blank">En savoir plus</a>';
-
-                const MARKER =
-                  L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
-                    icon: L.icon({
-                      iconAnchor: [12.5, 41],
-                      iconUrl: 'marker-icons/marker-icon-red.png',
-                      popupAnchor: [1, -41],
-                      shadowUrl: 'marker-icons/marker-shadow.png'
-                    }),
-                    title: region[0]
-                  }).addTo(REGIONS_LAYER)
-                    .bindPopup(
-                      '<div class="fw-bold" ' +
-                           'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
-                      '<div class="align-items-center d-flex" ' +
-                           'style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
-                        '<svg class="bi bi-shop" ' +
-                             'fill="rgba(0, 0, 0, 1)" ' +
-                             'height="48" ' +
-                             'viewBox="0 0 16 16" ' +
-                             'width="48" ' +
-                             'xmlns="http://www.w3.org/2000/svg">' +
-                          '<path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>' +
-                        '</svg>' +
-                        '<span style="margin-left: 20px;">' +
-                          '<b>' + region[1] + '</b> opportunité(s)<br>' +
-                          '<button class="btn btn-primary" ' +
-                                  'onclick="loadMarkers(ADDRESSES_LAYER, \'address\');" ' +
-                                  'type="button">Afficher</button>' +
-                        '</span>' +
-                      '</div>' +
-                      collection
-                    )
-                    .on('click', marker => setView(marker));
-
-                REGION_MARKER_LIST.push(MARKER);
-
-                regions.features.forEach(feature => {
-                  if (feature.properties.nom === region[0]) {
-                    feature.geometry.coordinates.forEach(coordinates => {
-                      switch (feature.geometry.type) {
-                        case 'MultiPolygon':
-                          coordinates.forEach(coordinate => getPolygon(coordinate, MARKER));
-                          break;
-                        case 'Polygon':
-                          getPolygon(coordinates, MARKER);
-                          break;
-                      }
-                    });
-                  };
+            regions.features.forEach(feature => {
+              if (feature.properties.nom === region[0]) {
+                feature.geometry.coordinates.forEach(coordinates => {
+                  switch (feature.geometry.type) {
+                    case 'MultiPolygon':
+                      coordinates.forEach(coordinate => getPolygon(coordinate, MARKER));
+                      break;
+                    case 'Polygon':
+                      getPolygon(coordinates, MARKER);
+                      break;
+                  }
                 });
-              });
+              };
+            });
           });
 
           loadMarkers(REGIONS_LAYER, 'region');
@@ -301,9 +269,9 @@ const loadAddress = product => {
       const MARKER = L.marker([response.results[0].geometry.location.lat, response.results[0].geometry.location.lng], {
         icon: L.icon({
           iconAnchor: [12.5, 41],
-          iconUrl: 'marker-icons/marker-icon.png',
+          iconUrl: '.png/marker-icon.png',
           popupAnchor: [1, -41],
-          shadowUrl: 'marker-icons/marker-shadow.png'
+          shadowUrl: '.png/marker-shadow.png'
         }),
         title: ADDRESS
       }).addTo(ADDRESSES_LAYER)
