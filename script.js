@@ -80,13 +80,13 @@ window.onload = _ => {
       Object.entries(regionCount).forEach(region => {
         const MARKER =
           L.marker(REGION_CAPITALS[region[0]][0], {
-            icon: L.icon({
-              iconAnchor: [12.5, 41],
-              iconUrl: '.png/marker-icon-red.png',
-              popupAnchor: [1, -41],
-              shadowUrl: '.png/marker-shadow.png'
+            icon: L.icon({                          // Icon instance to use for rendering the marker.
+              iconAnchor: [12.5, 41],               // The coordinates of the "tip" of the icon (relative to its top left corner).
+              iconUrl: '.png/marker-icon-red.png',  // (required) The URL to the icon image (absolute or relative to your script path).
+              popupAnchor: [1, -41],                // The coordinates of the point from which popups will "open", relative to the icon anchor.
+              shadowUrl: '.png/marker-shadow.png'   // The URL to the icon shadow image. If not specified, no shadow image will be created.
             }),
-            title: region[0]
+            title: region[0]                        // Text for the browser tooltip that appear on marker hover (no tooltip by default).
           }).addTo(REGIONS_LAYER)
             .bindPopup(
               '<div class="fw-bold" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
@@ -243,13 +243,19 @@ const loadAddress = product => {
   const STORE = product['3a76ea85df1fa8b1d1885af9a1c72c9699b7dca4'];
   const TOTAL_INVESTMENT = product['6a494ae5c460f7cb49a521620bc0359fb3018c5f'].toFixed();
   const MARKER = L.marker([product['6a3b126f8efbc800d297b61cff988a5f25ba33cf'], product['03078d486838193ebee4b1467af2c4056974d237']], {
-    icon: L.icon({
-      iconAnchor: [12.5, 41],
-      iconUrl: '.png/marker-icon.png',
-      popupAnchor: [1, -41],
-      shadowUrl: '.png/marker-shadow.png'
+    icon: L.icon({                        // Icon instance to use for rendering the marker.
+      iconAnchor: [12.5, 41],             // The coordinates of the "tip" of the icon (relative to its top left corner).
+      iconUrl: '.png/marker-icon.png',    // (required) The URL to the icon image (absolute or relative to your script path).
+      popupAnchor: [1, -41],              // The coordinates of the point from which popups will "open", relative to the icon anchor.
+      shadowUrl: '.png/marker-shadow.png' // The URL to the icon shadow image. If not specified, no shadow image will be created.
     }),
-    title: product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] + ' ' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() + ' (' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] + ')'
+    title:                                // Text for the browser tooltip that appear on marker hover (no tooltip by default).
+      product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] +
+      ' ' +
+      product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() +
+      ' (' +
+      product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] +
+      ')'
   }).addTo(ADDRESSES_LAYER)
     .bindPopup(
       '<div class="align-items-center d-flex" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; padding: 6.5px 0 13px 0;">' +
