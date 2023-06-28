@@ -86,9 +86,9 @@ window.onload = _ => {
           L.marker(REGION_CAPITALS[region[0]][0], {   // L.Marker is used to display clickable/draggable icons on the map.
             icon: L.icon({                            // Icon instance to use for rendering the marker.
               iconAnchor: [12.5, 41],                 // The coordinates of the "tip" of the icon (relative to its top left corner).
-              iconUrl: '.png/marker-icon-red.png',    // (required) The URL to the icon image (absolute or relative to your script path).
+              iconUrl: './.png/marker-icon-red.png',    // (required) The URL to the icon image (absolute or relative to your script path).
               popupAnchor: [1, -41],                  // The coordinates of the point from which popups will "open", relative to the icon anchor.
-              shadowUrl: '.png/marker-shadow.png'     // The URL to the icon shadow image. If not specified, no shadow image will be created.
+              shadowUrl: './.png/marker-shadow.png'     // The URL to the icon shadow image. If not specified, no shadow image will be created.
             }),
             title: region[0]                          // Text for the browser tooltip that appear on marker hover (no tooltip by default).
           }).addTo(REGIONS_LAYER)                     // Adds the layer to the given map or layer group.
@@ -114,10 +114,10 @@ window.onload = _ => {
             feature.geometry.coordinates.forEach(coordinates => {
               switch (feature.geometry.type) {
                 case 'MultiPolygon':
-                  coordinates.forEach(coordinate => getPolygon(coordinate, MARKER));
+                  coordinates.forEach(coordinate => getPolygon(coordinate, region[1] / Math.max(...Object.values(regionCount)) / 4 + .325, MARKER));
                   break;
                 case 'Polygon':
-                  getPolygon(coordinates, MARKER);
+                  getPolygon(coordinates, region[1] / Math.max(...Object.values(regionCount)) / 4 + .325, MARKER);
                   break;
                 default:
                   break;
@@ -230,9 +230,10 @@ const getCarousel = (product, i) => {
  *    @param {Array} coordinates - An array of coordinates representing the polygon vertices.
  *    @param {object} marker - The marker object associated with the polygon.
  */
-const getPolygon = (coordinates, marker) => {
+const getPolygon = (coordinates, fillOpacity, marker) => {
   L.polygon(coordinates.map(lngLat => [lngLat[1], lngLat[0]]), {                // A class for drawing polygon overlays on a map.
     color: 'indianred',                                                         // Stroke color.
+    fillOpacity: fillOpacity,                                                   // Fill opacity.
     weight: 1                                                                   // Stroke width in pixels.
   }).addTo(REGIONS_LAYER)                                                       // Adds the layer to the given map or layer group.
     .on('click', _ => setView(marker, 7.5))                                     // Fired when the user clicks (or taps) the layer.
@@ -253,9 +254,9 @@ const loadAddress = product => {
     L.marker([product['6a3b126f8efbc800d297b61cff988a5f25ba33cf'], product['03078d486838193ebee4b1467af2c4056974d237']], {  // L.Marker is used to display clickable/draggable icons on the map.
       icon: L.icon({                                                                                                        // Icon instance to use for rendering the marker.
         iconAnchor: [12.5, 41],                                                                                             // The coordinates of the "tip" of the icon (relative to its top left corner).
-        iconUrl: '.png/marker-icon.png',                                                                                    // (required) The URL to the icon image (absolute or relative to your script path).
+        iconUrl: './.png/marker-icon.png',                                                                                    // (required) The URL to the icon image (absolute or relative to your script path).
         popupAnchor: [1, -41],                                                                                              // The coordinates of the point from which popups will "open", relative to the icon anchor.
-        shadowUrl: '.png/marker-shadow.png'                                                                                 // The URL to the icon shadow image. If not specified, no shadow image will be created.
+        shadowUrl: './.png/marker-shadow.png'                                                                                 // The URL to the icon shadow image. If not specified, no shadow image will be created.
       }),
       title:                                                                                                                // Text for the browser tooltip that appear on marker hover (no tooltip by default).
         product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] +
