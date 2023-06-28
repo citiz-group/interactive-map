@@ -119,6 +119,8 @@ window.onload = _ => {
                 case 'Polygon':
                   getPolygon(coordinates, MARKER);
                   break;
+                default:
+                  break;
               }
             });
           };
