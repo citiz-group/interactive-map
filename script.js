@@ -1,7 +1,7 @@
 /*  INITIALIZATIONS
  */
 
-/* Used to group several layers and handle them as one.
+/*  Used to group several layers and handle them as one.
  */
 const ADDRESSES_LAYER = L.layerGroup();
 const REGIONS_LAYER = L.layerGroup();
@@ -22,7 +22,7 @@ window.onload = _ => {
     $('#map').css('width', '100%');
   }
 
-  map = L.map('map', {
+  map = L.map('map', {              // The central class of the API — it is used to create a map on a page and manipulate it.
     center: [46.227638, 2.213749],  // Initial geographic center of the map.
     loadingControl: true,           // Leaflet.loading is a simple loading control for Leaflet.
     maxBoundsViscosity: 1,          // If maxBounds is set, this option will control how solid the bounds are when dragging the map around.
@@ -30,22 +30,26 @@ window.onload = _ => {
     zoom: 6                         // Initial map zoom level.
   });
 
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {                         // Used to load and display tile layers on the map.
     attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',  // String to be shown in the attribution control, e.g. "© OpenStreetMap contributors".
     maxZoom: 99                                                                           // The maximum zoom level up to which this layer will be displayed (inclusive).
-  }).addTo(map);
+  }).addTo(map);                                                                          // Adds the layer to the given map or layer group.
 
-  /* Restricts the map view to the given bounds (see the maxBounds option).
+  /*  Restricts the map view to the given bounds (see the maxBounds option).
    */
   map.setMaxBounds(map.getBounds());
 
-  new L.Control.MiniMap(new L.TileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',  // String to be shown in the attribution control, e.g. "© OpenStreetMap contributors".
-    maxZoom: 99                                                                           // The maximum zoom level up to which this layer will be displayed (inclusive).
+  /*  Leaflet.MiniMap is a simple minimap control that you can drop into your leaflet map,
+   *  and it will create a small map in the corner which shows the same as the main map with a set zoom offset.
+   *  (By default it is -5.).
+   */
+  new L.Control.MiniMap(new L.TileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { // Used to load and display tile layers on the map.
+    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',    // String to be shown in the attribution control, e.g. "© OpenStreetMap contributors".
+    maxZoom: 99                                                                             // The maximum zoom level up to which this layer will be displayed (inclusive).
   }), {
-    toggleDisplay: true,  // Sets whether the minimap should have a button to minimise it.
-    zoomAnimation: true   // Sets whether the minimap should have an animated zoom.
-  }).addTo(map);
+    toggleDisplay: true,                                                                    // Sets whether the minimap should have a button to minimise it.
+    zoomAnimation: true                                                                     // Sets whether the minimap should have an animated zoom.
+  }).addTo(map);                                                                            // Adds the layer to the given map or layer group.
 
   fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts').then(r => r.json()).then(response => {
     let regionCount = {};
@@ -79,16 +83,16 @@ window.onload = _ => {
     fetch('regions.geojson').then(r => r.json()).then(regions => {
       Object.entries(regionCount).forEach(region => {
         const MARKER =
-          L.marker(REGION_CAPITALS[region[0]][0], {
-            icon: L.icon({                          // Icon instance to use for rendering the marker.
-              iconAnchor: [12.5, 41],               // The coordinates of the "tip" of the icon (relative to its top left corner).
-              iconUrl: '.png/marker-icon-red.png',  // (required) The URL to the icon image (absolute or relative to your script path).
-              popupAnchor: [1, -41],                // The coordinates of the point from which popups will "open", relative to the icon anchor.
-              shadowUrl: '.png/marker-shadow.png'   // The URL to the icon shadow image. If not specified, no shadow image will be created.
+          L.marker(REGION_CAPITALS[region[0]][0], {   // L.Marker is used to display clickable/draggable icons on the map.
+            icon: L.icon({                            // Icon instance to use for rendering the marker.
+              iconAnchor: [12.5, 41],                 // The coordinates of the "tip" of the icon (relative to its top left corner).
+              iconUrl: '.png/marker-icon-red.png',    // (required) The URL to the icon image (absolute or relative to your script path).
+              popupAnchor: [1, -41],                  // The coordinates of the point from which popups will "open", relative to the icon anchor.
+              shadowUrl: '.png/marker-shadow.png'     // The URL to the icon shadow image. If not specified, no shadow image will be created.
             }),
-            title: region[0]                        // Text for the browser tooltip that appear on marker hover (no tooltip by default).
-          }).addTo(REGIONS_LAYER)
-            .bindPopup(
+            title: region[0]                          // Text for the browser tooltip that appear on marker hover (no tooltip by default).
+          }).addTo(REGIONS_LAYER)                     // Adds the layer to the given map or layer group.
+            .bindPopup(                               // Binds a popup to the layer with the passed content and sets up the necessary event listeners.
               '<div class="fw-bold" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
               '<div class="align-items-center d-flex" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
                 '<svg class="bi bi-shop" fill="rgba(0, 0, 0, 1)" height="48" viewBox="0 0 16 16" width="48" xmlns="http://www.w3.org/2000/svg">' +
@@ -101,7 +105,7 @@ window.onload = _ => {
               '</div>' +
               '<a href="https://immocitiz.store/collections/' + REGION_CAPITALS[region[0]][1] + '" target="_blank">En savoir plus</a>'
             )
-            .on('click', marker => setView(marker));
+            .on('click', marker => setView(marker));  // Fired when the user clicks (or taps) the layer.
 
         REGION_MARKER_LIST.push(MARKER);
 
@@ -225,13 +229,13 @@ const getCarousel = (product, i) => {
  *    @param {object} marker - The marker object associated with the polygon.
  */
 const getPolygon = (coordinates, marker) => {
-  L.polygon(coordinates.map(lngLat => [lngLat[1], lngLat[0]]), {
-    color: 'indianred', // Stroke color
-    weight: 1           // Stroke width in pixels
-  }).addTo(REGIONS_LAYER)
-    .on('click', _ => setView(marker, 7.5))
-    .on('mouseout', polygon => polygon.target.setStyle({ color: 'indianred' }))
-    .on('mouseover', polygon => polygon.target.setStyle({ color: 'red' }));
+  L.polygon(coordinates.map(lngLat => [lngLat[1], lngLat[0]]), {                // A class for drawing polygon overlays on a map.
+    color: 'indianred',                                                         // Stroke color.
+    weight: 1                                                                   // Stroke width in pixels.
+  }).addTo(REGIONS_LAYER)                                                       // Adds the layer to the given map or layer group.
+    .on('click', _ => setView(marker, 7.5))                                     // Fired when the user clicks (or taps) the layer.
+    .on('mouseout', polygon => polygon.target.setStyle({ color: 'indianred' })) // Fired when the mouse leaves the layer.
+    .on('mouseover', polygon => polygon.target.setStyle({ color: 'red' }));     // Fired when the mouse enters the layer.
 };
 
 /*  Creates a marker, its popup, and its card based on the provided product object,
@@ -242,53 +246,55 @@ const loadAddress = product => {
   const PROFITABILITY = product['a2d1486abfd1f662fb387a34b0c590f4fd517ab8'].toFixed(2);
   const STORE = product['3a76ea85df1fa8b1d1885af9a1c72c9699b7dca4'];
   const TOTAL_INVESTMENT = product['6a494ae5c460f7cb49a521620bc0359fb3018c5f'].toFixed();
-  const MARKER = L.marker([product['6a3b126f8efbc800d297b61cff988a5f25ba33cf'], product['03078d486838193ebee4b1467af2c4056974d237']], {
-    icon: L.icon({                        // Icon instance to use for rendering the marker.
-      iconAnchor: [12.5, 41],             // The coordinates of the "tip" of the icon (relative to its top left corner).
-      iconUrl: '.png/marker-icon.png',    // (required) The URL to the icon image (absolute or relative to your script path).
-      popupAnchor: [1, -41],              // The coordinates of the point from which popups will "open", relative to the icon anchor.
-      shadowUrl: '.png/marker-shadow.png' // The URL to the icon shadow image. If not specified, no shadow image will be created.
-    }),
-    title:                                // Text for the browser tooltip that appear on marker hover (no tooltip by default).
-      product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] +
-      ' ' +
-      product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() +
-      ' (' +
-      product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] +
-      ')'
-  }).addTo(ADDRESSES_LAYER)
-    .bindPopup(
-      '<div class="align-items-center d-flex" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; padding: 6.5px 0 13px 0;">' +
-        '<div style="margin-right: 10px;">' +
-          '<svg class="bi bi-geo" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
-            '<path d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" fill-rule="evenodd"/>' +
-          '</svg>' +
-        '</div>' +
+
+  const MARKER =
+    L.marker([product['6a3b126f8efbc800d297b61cff988a5f25ba33cf'], product['03078d486838193ebee4b1467af2c4056974d237']], {  // L.Marker is used to display clickable/draggable icons on the map.
+      icon: L.icon({                                                                                                        // Icon instance to use for rendering the marker.
+        iconAnchor: [12.5, 41],                                                                                             // The coordinates of the "tip" of the icon (relative to its top left corner).
+        iconUrl: '.png/marker-icon.png',                                                                                    // (required) The URL to the icon image (absolute or relative to your script path).
+        popupAnchor: [1, -41],                                                                                              // The coordinates of the point from which popups will "open", relative to the icon anchor.
+        shadowUrl: '.png/marker-shadow.png'                                                                                 // The URL to the icon shadow image. If not specified, no shadow image will be created.
+      }),
+      title:                                                                                                                // Text for the browser tooltip that appear on marker hover (no tooltip by default).
+        product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] +
+        ' ' +
+        product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() +
+        ' (' +
+        product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] +
+        ')'
+    }).addTo(ADDRESSES_LAYER)                                                                                               // Adds the layer to the given map or layer group.
+      .bindPopup(                                                                                                           // Binds a popup to the layer with the passed content and sets up the necessary event listeners.
+        '<div class="align-items-center d-flex" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; padding: 6.5px 0 13px 0;">' +
+          '<div style="margin-right: 10px;">' +
+            '<svg class="bi bi-geo" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
+              '<path d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" fill-rule="evenodd"/>' +
+            '</svg>' +
+          '</div>' +
+          '<div>' +
+            '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] + '</span><br>' +
+            '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() + ' (' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] + ')</span>' +
+          '</div>' +
+        '</div><br>' +
         '<div>' +
-          '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_route'] + '</span><br>' +
-          '<span>' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_locality'].toUpperCase() + ' (' + product['ff889249fdf2a050f358d1123539ce8f310fcf87_postal_code'] + ')</span>' +
-        '</div>' +
-      '</div><br>' +
-      '<div>' +
-        '<span class="align-items-around d-flex">' +
-          '<span class="align-items-center d-flex">' +
-            '<svg class="bi bi-wallet2" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
-              '<path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>' +
-            '</svg>' +
-            '&nbsp;&nbsp;<b>' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>&nbsp;&sup1;' +
+          '<span class="align-items-around d-flex">' +
+            '<span class="align-items-center d-flex">' +
+              '<svg class="bi bi-wallet2" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
+                '<path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>' +
+              '</svg>' +
+              '&nbsp;&nbsp;<b>' + TOTAL_INVESTMENT.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €</b>&nbsp;&sup1;' +
+            '</span>' +
+            '<span style="width: 100px;"></span>' +
+            '<span class="align-items-center d-flex">' +
+              '<svg class="bi bi-graph-up-arrow" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
+                '<path d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z" fill-rule="evenodd"/>' +
+              '</svg>' +
+              '&nbsp;&nbsp;<b>' + PROFITABILITY.toString().replace('.', ',') + ' %</b>&nbsp;&sup2;' +
+            '</span>' +
           '</span>' +
-          '<span style="width: 100px;"></span>' +
-          '<span class="align-items-center d-flex">' +
-            '<svg class="bi bi-graph-up-arrow" fill="rgba(0, 0, 0, 1)" height="24" viewBox="0 0 16 16" width="24" xmlns="http://www.w3.org/2000/svg">' +
-              '<path d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z" fill-rule="evenodd"/>' +
-            '</svg>' +
-            '&nbsp;&nbsp;<b>' + PROFITABILITY.toString().replace('.', ',') + ' %</b>&nbsp;&sup2;' +
-          '</span>' +
-        '</span>' +
-      '</div><br>' +
-      getCarousel(product, carouselIndex) + '<br>' +
-      '<a href="' + STORE + '" target="_blank">En savoir plus</a>'
-    ).on('click', marker => setView(marker));
+        '</div><br>' +
+        getCarousel(product, carouselIndex) + '<br>' +
+        '<a href="' + STORE + '" target="_blank">En savoir plus</a>'
+      ).on('click', marker => setView(marker));                                                                             // Fired when the user clicks (or taps) the layer.
 
   carouselIndex++;
 
@@ -390,9 +396,9 @@ const loadList = _ => {
  *    @param {string} radioInputId - The ID of the radio input to be checked.
  */
 const loadMarkers = (layer, radioInputId) => {
-  map.removeLayer(REGIONS_LAYER);
-  map.removeLayer(ADDRESSES_LAYER);
-  map.addLayer(layer);
+  map.removeLayer(REGIONS_LAYER);   // Removes the given layer from the map.
+  map.removeLayer(ADDRESSES_LAYER); // Removes the given layer from the map.
+  map.addLayer(layer);              // Adds the given layer to the map.
   $('#' + radioInputId).prop('checked', true);
 };
 
