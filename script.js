@@ -381,6 +381,8 @@ const loadList = _ => {
     case 'profitabilityAscending':
       sortedList = sortedList.sort((a, b) => a.profitability - b.profitability);
       break;
+    default:
+      break;
   }
 
   sortedList.forEach(address => cards += address.card);
