@@ -37,7 +37,7 @@ window.onload = _ => {
 
   /*  Restricts the map view to the given bounds (see the maxBounds option).
    */
-  map.setMaxBounds(map.getBounds());
+  // map.setMaxBounds(map.getBounds());
 
   /*  Leaflet.MiniMap is a simple minimap control that you can drop into your leaflet map,
    *  and it will create a small map in the corner which shows the same as the main map with a set zoom offset.
