@@ -399,8 +399,7 @@ const setTravelInformations = location => {
       fetch('https://europe-west1-single-odyssey-372313.cloudfunctions.net/fetch?name=directions' +
         '&originLatitude=' + location.latitude + '&originLongitude=' + location.longitude +
         '&destinationLatitude=' + address.latitude + '&destinationLongitude=' + address.longitude)
-        .then(response => response.json())
-        .then(response => {
+        .then(r => r.json()).then(response => {
           const DISTANCE =
             response.routes[0].distanceMeters > 999 ?
               String(response.routes[0].distanceMeters).substring(0, String(response.routes[0].distanceMeters).length - 3).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') :
