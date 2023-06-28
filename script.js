@@ -226,8 +226,8 @@ const getCarousel = (product, i) => {
  */
 const getPolygon = (coordinates, marker) => {
   L.polygon(coordinates.map(lngLat => [lngLat[1], lngLat[0]]), {
-    color: 'indianred',
-    weight: 1
+    color: 'indianred', // Stroke color
+    weight: 1           // Stroke width in pixels
   }).addTo(REGIONS_LAYER)
     .on('click', _ => setView(marker, 7.5))
     .on('mouseout', polygon => polygon.target.setStyle({ color: 'indianred' }))
