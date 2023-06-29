@@ -13,151 +13,6 @@ const REGION_MARKER_LIST = [];
 let carouselIndex = 1;
 let map = '';
 
-/*  MAIN
- */
-
-window.onload = _ => {
-  if (jQuery.browser.mobile || window.innerWidth < 1000) {
-    $('#cards').css('display', 'none');
-    $('#map').css('width', '100%');
-  }
-
-  map = L.map('map', {              // The central class of the API — it is used to create a map on a page and manipulate it.
-    center: [46.227638, 2.213749],  // Initial geographic center of the map.
-    loadingControl: true,           // Leaflet.loading is a simple loading control for Leaflet.
-    maxBoundsViscosity: 1,          // If maxBounds is set, this option will control how solid the bounds are when dragging the map around.
-    minZoom: 6,                     // Minimum zoom level of the map.
-    zoom: 6                         // Initial map zoom level.
-  });
-
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {                         // Used to load and display tile layers on the map.
-    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',  // String to be shown in the attribution control, e.g. "© OpenStreetMap contributors".
-    maxZoom: 99                                                                           // The maximum zoom level up to which this layer will be displayed (inclusive).
-  }).addTo(map);                                                                          // Adds the layer to the given map or layer group.
-
-  /*  Restricts the map view to the given bounds (see the maxBounds option).
-   */
-  // map.setMaxBounds(map.getBounds());
-
-  /*  Leaflet.MiniMap is a simple minimap control that you can drop into your leaflet map,
-   *  and it will create a small map in the corner which shows the same as the main map with a set zoom offset.
-   *  (By default it is -5.).
-   */
-  new L.Control.MiniMap(new L.TileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { // Used to load and display tile layers on the map.
-    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',    // String to be shown in the attribution control, e.g. "© OpenStreetMap contributors".
-    maxZoom: 99                                                                             // The maximum zoom level up to which this layer will be displayed (inclusive).
-  }), {
-    toggleDisplay: true,                                                                    // Sets whether the minimap should have a button to minimise it.
-    zoomAnimation: true                                                                     // Sets whether the minimap should have an animated zoom.
-  }).addTo(map);                                                                            // Adds the layer to the given map or layer group.
-
-  fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts').then(r => r.json()).then(response => {
-    let regionCount = {};
-
-    response.data.forEach(product => {
-      if (regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] === undefined) {
-        regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] = 0;
-      }
-      regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']]++;
-
-      loadAddress(product);
-    });
-
-    const REGION_CAPITALS = {
-      'Auvergne-Rhône-Alpes': [[45.764043, 4.835659], 'grand-est'],   // Lyon
-      'Bourgogne-Franche-Comté': [[47.322047, 5.04148], 'grand-est'], // Dijon
-      'Bretagne': [[48.117266, -1.6777926], 'grand-ouest'],           // Rennes
-      'Centre-Val de Loire': [[47.902964, 1.909251], 'grand-ouest'],  // Orléans
-      'Corse': [[41.919229, 8.738635], 'all'],                        // Ajaccio
-      'Grand Est': [[48.5734053, 7.752111299999999], 'grand-est'],    // Strasbourg
-      'Grand Ouest': [[47.218371, -1.553621], 'grand-ouest'],         // Nantes
-      'Hauts-de-France': [[50.62925, 3.057256], 'hauts-de-france'],   // Lille
-      'Île-de-France': [[48.856614, 2.3522219], 'ile-de-france'],     // Paris
-      'Normandie': [[49.44323199999999, 1.099971], 'grand-ouest'],    // Rouen
-      'Nouvelle-Aquitaine': [[44.837789, -0.57918], 'grand-ouest'],   // Bordeaux
-      'Occitanie': [[43.604652, 1.444209], 'sud'],                    // Toulouse
-      'Pays de la Loire': [[47.218371, -1.553621], 'grand-ouest'],    // Nantes
-      'Provence-Alpes-Côte d\'Azur': [[43.296482, 5.36978], 'sud'],   // Marseille
-    };
-
-    fetch('regions.geojson').then(r => r.json()).then(regions => {
-      Object.entries(regionCount).forEach(region => {
-        const MARKER =
-          L.marker(REGION_CAPITALS[region[0]][0], {   // L.Marker is used to display clickable/draggable icons on the map.
-            icon: L.icon({                            // Icon instance to use for rendering the marker.
-              iconAnchor: [12.5, 41],                 // The coordinates of the "tip" of the icon (relative to its top left corner).
-              iconUrl: 'png/marker-icon-red.png',     // (required) The URL to the icon image (absolute or relative to your script path).
-              popupAnchor: [1, -41],                  // The coordinates of the point from which popups will "open", relative to the icon anchor.
-              shadowUrl: 'png/marker-shadow.png'      // The URL to the icon shadow image. If not specified, no shadow image will be created.
-            }),
-            title: region[0]                          // Text for the browser tooltip that appear on marker hover (no tooltip by default).
-          }).addTo(REGIONS_LAYER)                     // Adds the layer to the given map or layer group.
-            .bindPopup(                               // Binds a popup to the layer with the passed content and sets up the necessary event listeners.
-              '<div class="fw-bold" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
-              '<div class="align-items-center d-flex" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
-                '<svg class="bi bi-shop" fill="rgba(0, 0, 0, 1)" height="48" viewBox="0 0 16 16" width="48" xmlns="http://www.w3.org/2000/svg">' +
-                  '<path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>' +
-                '</svg>' +
-                '<span style="margin-left: 20px;">' +
-                  '<b>' + region[1] + '</b> opportunité(s)<br>' +
-                  '<button class="btn btn-primary" onclick="loadMarkers(ADDRESSES_LAYER, \'address\');" type="button">Afficher</button>' +
-                '</span>' +
-              '</div>' +
-              '<a href="https://immocitiz.store/collections/' + REGION_CAPITALS[region[0]][1] + '" target="_blank">En savoir plus</a>'
-            )
-            .on('click', marker => setView(marker));  // Fired when the user clicks (or taps) the layer.
-
-        REGION_MARKER_LIST.push(MARKER);
-
-        regions.features.forEach(feature => {
-          if (feature.properties.nom === region[0]) {
-            feature.geometry.coordinates.forEach(coordinates => {
-              switch (feature.geometry.type) {
-                case 'MultiPolygon':
-                  coordinates.forEach(coordinate => getPolygon(coordinate, region[1] / Math.max(...Object.values(regionCount)) / 4 + .325, MARKER));
-                  break;
-                case 'Polygon':
-                  getPolygon(coordinates, region[1] / Math.max(...Object.values(regionCount)) / 4 + .325, MARKER);
-                  break;
-                default:
-                  break;
-              }
-            });
-          };
-        });
-      });
-
-      loadMarkers(REGIONS_LAYER, 'region');
-
-      if (!jQuery.browser.mobile) loadList();
-    });
-  });
-
-  /*  EVENT LISTENERS
-   */
-
-  /*  Event listener that triggers when a user shares their location and executes a function
-   *  to calculate and print the distance and travel time between the user's location and a set list of addresses.
-   *  The user's location is passed as a parameter to the function.
-   */
-  map.on('locationfound', location => setTravelInformations(location));
-
-  /*  Event listener that triggers when the window is resized. It displays or hides a list of cards
-   *  based on the window size and adjusts the width of a map accordingly.
-   *  This event listener does not require any parameters as it directly interacts with the DOM elements.
-   *  It handles the display and sizing logic to adapt to the resized window.
-   */
-  window.addEventListener('resize', _ => {
-    if (window.innerWidth < 1000) {
-      $('#cards').css('display', 'none');
-      $('#map').css('width', '100%');
-    } else {
-      $('#cards').css('display', 'flex');
-      $('#map').css('width', '62.5%');
-    }
-  });
-}
-
 /*  FUNCTIONS
  */
 
@@ -458,3 +313,148 @@ const setView = (marker, zoom) => {
   );
   if (marker?.options?.title) marker.openPopup();
 };
+
+/*  MAIN
+ */
+
+window.onload = _ => {
+  if (jQuery.browser.mobile || window.innerWidth < 1000) {
+    $('#cards').css('display', 'none');
+    $('#map').css('width', '100%');
+  }
+
+  map = L.map('map', {              // The central class of the API — it is used to create a map on a page and manipulate it.
+    center: [46.227638, 2.213749],  // Initial geographic center of the map.
+    loadingControl: true,           // Leaflet.loading is a simple loading control for Leaflet.
+    maxBoundsViscosity: 1,          // If maxBounds is set, this option will control how solid the bounds are when dragging the map around.
+    minZoom: 6,                     // Minimum zoom level of the map.
+    zoom: 6                         // Initial map zoom level.
+  });
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {                         // Used to load and display tile layers on the map.
+    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',  // String to be shown in the attribution control, e.g. "© OpenStreetMap contributors".
+    maxZoom: 99                                                                           // The maximum zoom level up to which this layer will be displayed (inclusive).
+  }).addTo(map);                                                                          // Adds the layer to the given map or layer group.
+
+  /*  Restricts the map view to the given bounds (see the maxBounds option).
+   */
+  // map.setMaxBounds(map.getBounds());
+
+  /*  Leaflet.MiniMap is a simple minimap control that you can drop into your leaflet map,
+   *  and it will create a small map in the corner which shows the same as the main map with a set zoom offset.
+   *  (By default it is -5.).
+   */
+  new L.Control.MiniMap(new L.TileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { // Used to load and display tile layers on the map.
+    attribution: '&copy; <a href="https://immocitiz.fr/" target="_blank">Immocitiz</a>',    // String to be shown in the attribution control, e.g. "© OpenStreetMap contributors".
+    maxZoom: 99                                                                             // The maximum zoom level up to which this layer will be displayed (inclusive).
+  }), {
+    toggleDisplay: true,                                                                    // Sets whether the minimap should have a button to minimise it.
+    zoomAnimation: true                                                                     // Sets whether the minimap should have an animated zoom.
+  }).addTo(map);                                                                            // Adds the layer to the given map or layer group.
+
+  fetch('https://fetch-y2o3vi2tyq-ew.a.run.app?name=activeProducts').then(r => r.json()).then(response => {
+    let regionCount = {};
+
+    response.data.forEach(product => {
+      if (regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] === undefined) {
+        regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']] = 0;
+      }
+      regionCount[product['ff889249fdf2a050f358d1123539ce8f310fcf87_admin_area_level_1']]++;
+
+      loadAddress(product);
+    });
+
+    const REGION_CAPITALS = {
+      'Auvergne-Rhône-Alpes': [[45.764043, 4.835659], 'grand-est'],   // Lyon
+      'Bourgogne-Franche-Comté': [[47.322047, 5.04148], 'grand-est'], // Dijon
+      'Bretagne': [[48.117266, -1.6777926], 'grand-ouest'],           // Rennes
+      'Centre-Val de Loire': [[47.902964, 1.909251], 'grand-ouest'],  // Orléans
+      'Corse': [[41.919229, 8.738635], 'all'],                        // Ajaccio
+      'Grand Est': [[48.5734053, 7.752111299999999], 'grand-est'],    // Strasbourg
+      'Grand Ouest': [[47.218371, -1.553621], 'grand-ouest'],         // Nantes
+      'Hauts-de-France': [[50.62925, 3.057256], 'hauts-de-france'],   // Lille
+      'Île-de-France': [[48.856614, 2.3522219], 'ile-de-france'],     // Paris
+      'Normandie': [[49.44323199999999, 1.099971], 'grand-ouest'],    // Rouen
+      'Nouvelle-Aquitaine': [[44.837789, -0.57918], 'grand-ouest'],   // Bordeaux
+      'Occitanie': [[43.604652, 1.444209], 'sud'],                    // Toulouse
+      'Pays de la Loire': [[47.218371, -1.553621], 'grand-ouest'],    // Nantes
+      'Provence-Alpes-Côte d\'Azur': [[43.296482, 5.36978], 'sud'],   // Marseille
+    };
+
+    fetch('regions.geojson').then(r => r.json()).then(regions => {
+      Object.entries(regionCount).forEach(region => {
+        const MARKER =
+          L.marker(REGION_CAPITALS[region[0]][0], {   // L.Marker is used to display clickable/draggable icons on the map.
+            icon: L.icon({                            // Icon instance to use for rendering the marker.
+              iconAnchor: [12.5, 41],                 // The coordinates of the "tip" of the icon (relative to its top left corner).
+              iconUrl: 'png/marker-icon-red.png',     // (required) The URL to the icon image (absolute or relative to your script path).
+              popupAnchor: [1, -41],                  // The coordinates of the point from which popups will "open", relative to the icon anchor.
+              shadowUrl: 'png/marker-shadow.png'      // The URL to the icon shadow image. If not specified, no shadow image will be created.
+            }),
+            title: region[0]                          // Text for the browser tooltip that appear on marker hover (no tooltip by default).
+          }).addTo(REGIONS_LAYER)                     // Adds the layer to the given map or layer group.
+            .bindPopup(                               // Binds a popup to the layer with the passed content and sets up the necessary event listeners.
+              '<div class="fw-bold" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' + region[0] + '</div>' +
+              '<div class="align-items-center d-flex" style="border-bottom: rgba(0, 0, 0, .1) solid 1px; margin-bottom: 10px; padding-bottom: 10px;">' +
+                '<svg class="bi bi-shop" fill="rgba(0, 0, 0, 1)" height="48" viewBox="0 0 16 16" width="48" xmlns="http://www.w3.org/2000/svg">' +
+                  '<path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>' +
+                '</svg>' +
+                '<span style="margin-left: 20px;">' +
+                  '<b>' + region[1] + '</b> opportunité(s)<br>' +
+                  '<button class="btn btn-primary" onclick="loadMarkers(ADDRESSES_LAYER, \'address\');" type="button">Afficher</button>' +
+                '</span>' +
+              '</div>' +
+              '<a href="https://immocitiz.store/collections/' + REGION_CAPITALS[region[0]][1] + '" target="_blank">En savoir plus</a>'
+            )
+            .on('click', marker => setView(marker));  // Fired when the user clicks (or taps) the layer.
+
+        REGION_MARKER_LIST.push(MARKER);
+
+        regions.features.forEach(feature => {
+          if (feature.properties.nom === region[0]) {
+            feature.geometry.coordinates.forEach(coordinates => {
+              switch (feature.geometry.type) {
+                case 'MultiPolygon':
+                  coordinates.forEach(coordinate => getPolygon(coordinate, region[1] / Math.max(...Object.values(regionCount)) / 4 + .325, MARKER));
+                  break;
+                case 'Polygon':
+                  getPolygon(coordinates, region[1] / Math.max(...Object.values(regionCount)) / 4 + .325, MARKER);
+                  break;
+                default:
+                  break;
+              }
+            });
+          };
+        });
+      });
+
+      loadMarkers(REGIONS_LAYER, 'region');
+
+      if (!jQuery.browser.mobile) loadList();
+    });
+  });
+
+  /*  EVENT LISTENERS
+   */
+
+  /*  Event listener that triggers when a user shares their location and executes a function
+   *  to calculate and print the distance and travel time between the user's location and a set list of addresses.
+   *  The user's location is passed as a parameter to the function.
+   */
+  map.on('locationfound', location => setTravelInformations(location));
+
+  /*  Event listener that triggers when the window is resized. It displays or hides a list of cards
+   *  based on the window size and adjusts the width of a map accordingly.
+   *  This event listener does not require any parameters as it directly interacts with the DOM elements.
+   *  It handles the display and sizing logic to adapt to the resized window.
+   */
+  window.addEventListener('resize', _ => {
+    if (window.innerWidth < 1000) {
+      $('#cards').css('display', 'none');
+      $('#map').css('width', '100%');
+    } else {
+      $('#cards').css('display', 'flex');
+      $('#map').css('width', '62.5%');
+    }
+  });
+}
