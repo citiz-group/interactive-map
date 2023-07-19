@@ -1,3 +1,4 @@
+# [Install the app from the Pipedrive marketplace](https://www.pipedrive.com/en/marketplace/app/carte-int%C3%A9ractive/5e4c170ed64b8372)
 |package-name|version|
 |-|-|
 |<sup>@pipedrive/app-extensions-sdk</sup>|![npm](https://img.shields.io/npm/v/@pipedrive/app-extensions-sdk?color=0d1117&label=%20&style=flat-square)|
