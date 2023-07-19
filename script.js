@@ -288,6 +288,15 @@ const setTravelInformations = location => {
   }
 };
 
+const sdk = async _ => {
+  const SDK = await new AppExtensionsSDK().initialize({
+    size: {
+      height: 700,
+      width: 800
+    }
+  });
+}
+
 /*  Adjusts the view and zoom level of an interactive map based on the given marker and zoom level.
  *    @param {marker} marker - The marker representing the new position on the map.
  *    @param {number} zoom - The desired zoom level for the map.
@@ -316,6 +325,8 @@ const setView = (marker, zoom) => {
 
 /*  MAIN
  */
+
+sdk();
 
 window.onload = _ => {
   if (jQuery.browser.mobile || window.innerWidth < 1000) {
