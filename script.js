@@ -288,6 +288,11 @@ const setTravelInformations = location => {
   }
 };
 
+/*  Initializes a custom floating window using the SDK.
+ *  This function does not take any parameters. It is responsible for setting up
+ *  and initializing a custom floating window using the software development kit (SDK).
+ *  The window can be used to display custom content or interact with the user.
+ */
 const sdk = async _ => {
   const SDK = await new AppExtensionsSDK().initialize({
     size: {
@@ -295,7 +300,7 @@ const sdk = async _ => {
       width: 800
     }
   });
-}
+};
 
 /*  Adjusts the view and zoom level of an interactive map based on the given marker and zoom level.
  *    @param {marker} marker - The marker representing the new position on the map.
@@ -468,4 +473,4 @@ window.onload = _ => {
       $('#map').css('width', '62.5%');
     }
   });
-}
+};
